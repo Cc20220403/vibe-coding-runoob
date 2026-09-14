@@ -2,40 +2,9 @@ import { reactive, watch } from 'vue'
 import type { Task, TaskPriority } from '../types/task'
 import { saveTasks, loadTasks } from '../utils/storage'
 
-// 默认示例任务（首次使用时创建）
-const defaultTasks: Task[] = [
-  {
-    id: '1',
-    title: '搭建项目骨架',
-    description: '初始化 Vue 3 + Vite + Tailwind CSS 项目，配置基础目录结构',
-    status: 'done',
-    priority: 'high',
-    dueDate: '2026-09-15',
-    createdAt: '2026-09-12',
-  },
-  {
-    id: '2',
-    title: '实现任务列表页面',
-    description: '完成 TaskCard、TaskList、TaskModal 组件开发，打通新建/完成/删除流程',
-    status: 'in-progress',
-    priority: 'medium',
-    dueDate: '2026-09-18',
-    createdAt: '2026-09-14',
-  },
-  {
-    id: '3',
-    title: '接入后端 API',
-    description: '对接 RESTful 接口，实现任务的增删改查数据交互',
-    status: 'todo',
-    priority: 'low',
-    dueDate: '2026-09-22',
-    createdAt: '2026-09-14',
-  },
-]
-
-// 初始化：null 表示首次使用，加载默认示例任务；[] 表示用户主动清空，保持空数组
+// 初始化：首次使用即为空数组，不预设任何任务
 const initial = loadTasks()
-const tasks = reactive<Task[]>(initial === null ? defaultTasks : initial)
+const tasks = reactive<Task[]>(initial === null ? [] : initial)
 
 // 监听变化自动持久化
 watch(

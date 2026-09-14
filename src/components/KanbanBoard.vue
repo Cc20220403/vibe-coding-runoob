@@ -1,5 +1,5 @@
 <script setup lang="ts">
-import { ref } from 'vue'
+import { ref, computed } from 'vue'
 import type { Task, TaskStatus } from '../types/task'
 import { priorityBorder, priorityLabel, priorityBadge } from '../constants/task'
 
@@ -29,18 +29,30 @@ function getTasksByStatus(status: TaskStatus): Task[] {
 const draggedTaskId = ref<string | null>(null)
 const dragOverColumn = ref<TaskStatus | null>(null)
 
-// 删除确认状态
-const confirmingDeleteId = ref<string | null>(null)
+// 删除确认弹窗状态
+const showDeleteConfirmId = ref<string | null>(null)
 
 function requestDelete(id: string) {
-  if (confirmingDeleteId.value === id) {
-    emit('delete', id)
-    confirmingDeleteId.value = null
-  } else {
-    confirmingDeleteId.value = id
-    setTimeout(() => { confirmingDeleteId.value = null }, 3000)
+  showDeleteConfirmId.value = id
+}
+
+function confirmDelete() {
+  if (showDeleteConfirmId.value) {
+    emit('delete', showDeleteConfirmId.value)
+    showDeleteConfirmId.value = null
   }
 }
+
+function cancelDelete() {
+  showDeleteConfirmId.value = null
+}
+
+// 获取正在确认删除的任务名称
+const deletingTaskTitle = computed(() => {
+  if (!showDeleteConfirmId.value) return ''
+  const t = props.tasks.find(t => t.id === showDeleteConfirmId.value)
+  return t ? t.title : ''
+})
 
 function onDragStart(task: Task) {
   draggedTaskId.value = task.id
@@ -120,11 +132,8 @@ function onDragEnd() {
               {{ task.title }}
             </h4>
             <button
-              class="shrink-0 w-5 h-5 flex items-center justify-center rounded-full transition-colors"
-              :class="confirmingDeleteId === task.id
-                ? 'bg-rose-500 text-white hover:bg-rose-600 dark:bg-rose-600 dark:hover:bg-rose-700'
-                : 'text-slate-300 dark:text-slate-600 hover:text-rose-500 hover:bg-rose-50 dark:hover:bg-rose-900/30'"
-              :title="confirmingDeleteId === task.id ? '再次点击确认删除' : '删除任务'"
+              class="shrink-0 w-5 h-5 flex items-center justify-center rounded-full text-slate-300 dark:text-slate-600 hover:text-rose-500 hover:bg-rose-50 dark:hover:bg-rose-900/30 transition-colors"
+              title="删除任务"
               @click.stop="requestDelete(task.id)"
             >
               <svg xmlns="http://www.w3.org/2000/svg" class="w-3 h-3" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2.5" stroke-linecap="round" stroke-linejoin="round">
@@ -168,4 +177,38 @@ function onDragEnd() {
       </div>
     </div>
   </div>
+
+  <!-- 删除确认弹窗 -->
+  <Teleport to="body">
+    <Transition
+      enter-active-class="transition-opacity duration-200"
+      leave-active-class="transition-opacity duration-150"
+      enter-from-class="opacity-0"
+      leave-to-class="opacity-0"
+    >
+      <div v-if="showDeleteConfirmId" class="fixed inset-0 z-50 flex items-center justify-center p-4">
+        <div class="absolute inset-0 bg-black/40" @click="cancelDelete" />
+        <div class="relative bg-white dark:bg-slate-800 rounded-xl shadow-2xl w-full max-w-sm p-6 z-10">
+          <h3 class="text-base font-semibold text-slate-800 dark:text-slate-100 mb-2">确认删除</h3>
+          <p class="text-sm text-slate-500 dark:text-slate-400 mb-5">
+            确定要删除任务「<span class="font-medium text-slate-700 dark:text-slate-200">{{ deletingTaskTitle }}</span>」吗？此操作不可撤销。
+          </p>
+          <div class="flex items-center justify-end gap-3">
+            <button
+              class="px-4 py-2 text-sm font-medium text-slate-600 dark:text-slate-400 hover:text-slate-800 dark:hover:text-slate-200 hover:bg-slate-100 dark:hover:bg-slate-700 rounded-lg transition-colors"
+              @click="cancelDelete"
+            >
+              取消
+            </button>
+            <button
+              class="px-4 py-2 text-sm font-medium text-white bg-rose-500 hover:bg-rose-600 rounded-lg shadow-sm transition-colors"
+              @click="confirmDelete"
+            >
+              删除
+            </button>
+          </div>
+        </div>
+      </div>
+    </Transition>
+  </Teleport>
 </template>
