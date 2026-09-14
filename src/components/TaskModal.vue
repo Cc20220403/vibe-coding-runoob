@@ -151,17 +151,17 @@ onUnmounted(() => {
             <!-- 操作按钮 -->
             <div class="flex items-center justify-end gap-3 pt-2">
               <button
+                type="submit"
+                class="px-5 py-2 text-sm font-medium text-white bg-indigo-600 hover:bg-indigo-700 rounded-lg shadow-sm transition-colors"
+              >
+                创建
+              </button>
+              <button
                 type="button"
                 class="px-4 py-2 text-sm font-medium text-slate-600 dark:text-slate-400 hover:text-slate-800 dark:hover:text-slate-200 hover:bg-slate-100 dark:hover:bg-slate-700 rounded-lg transition-colors"
                 @click="close"
               >
                 取消
-              </button>
-              <button
-                type="submit"
-                class="px-5 py-2 text-sm font-medium text-white bg-indigo-600 hover:bg-indigo-700 rounded-lg shadow-sm transition-colors"
-              >
-                创建
               </button>
             </div>
           </form>

@@ -102,16 +102,16 @@ function cancelDelete() {
           </p>
           <div class="flex items-center justify-end gap-3">
             <button
-              class="px-4 py-2 text-sm font-medium text-slate-600 dark:text-slate-400 hover:text-slate-800 dark:hover:text-slate-200 hover:bg-slate-100 dark:hover:bg-slate-700 rounded-lg transition-colors"
-              @click="cancelDelete"
-            >
-              取消
-            </button>
-            <button
               class="px-4 py-2 text-sm font-medium text-white bg-rose-500 hover:bg-rose-600 rounded-lg shadow-sm transition-colors"
               @click="confirmDelete"
             >
               删除
+            </button>
+            <button
+              class="px-4 py-2 text-sm font-medium text-slate-600 dark:text-slate-400 hover:text-slate-800 dark:hover:text-slate-200 hover:bg-slate-100 dark:hover:bg-slate-700 rounded-lg transition-colors"
+              @click="cancelDelete"
+            >
+              取消
             </button>
           </div>
         </div>
