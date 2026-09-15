@@ -15,7 +15,7 @@ interface TaskState {
   
   // 任务 CRUD
   addTask: (data: { title: string; description: string; category: string; priority: TaskPriority; dueDate: string }) => void
-  batchAddTasks: (titles: string[], data: { description: string; category: string; priority: TaskPriority; dueDate: string }) => void
+  batchAddTasks: (items: { title: string; description: string; category: string; priority: TaskPriority; dueDate: string }[]) => void
   updateTask: (id: string, updates: Partial<Task>) => void
   deleteTask: (id: string) => void
   batchDeleteTasks: (ids: string[]) => void
@@ -54,17 +54,17 @@ export const useTaskStore = create<TaskState>()(
         set((state) => ({ tasks: [newTask, ...state.tasks] }))
       },
 
-      batchAddTasks: (titles, data) => {
+      batchAddTasks: (items) => {
         const now = Date.now()
         const today = new Date().toISOString().split('T')[0]
-        const newTasks: Task[] = titles.map((title, i) => ({
+        const newTasks: Task[] = items.map((item, i) => ({
           id: `${now}_${i}_${Math.random().toString(36).slice(2, 6)}`,
-          title,
-          description: data.description,
-          category: data.category,
-          priority: data.priority,
+          title: item.title,
+          description: item.description,
+          category: item.category,
+          priority: item.priority,
           status: 'todo' as const,
-          dueDate: data.dueDate,
+          dueDate: item.dueDate,
           createdAt: today,
         }))
         set((state) => ({ tasks: [...newTasks, ...state.tasks] }))
