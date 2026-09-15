@@ -90,38 +90,37 @@ export default function TaskCard({ task, onEdit, isOverdue, batchMode, isSelecte
             </label>
           )}
 
-          {/* 任务内容 */}
+          {/* 中间：标题 + 标签 */}
           <div className="flex-1 min-w-0">
+            {/* 标题行（pr-14 为操作按钮留位） */}
             <h3
               className={`text-sm font-medium pr-14 transition-colors ${isDone ? 'line-through text-slate-400/70 dark:text-slate-500/70' : 'text-slate-800 dark:text-slate-100'}`}
             >
               {task.title}
             </h3>
+            {/* 标签行：独立一行，不与操作按钮重叠 */}
+            <div className="flex items-center gap-2 mt-1 flex-wrap">
+              {task.category && (
+                <span className="inline-flex items-center px-2 py-0.5 rounded-full text-[11px] font-medium bg-indigo-500/8 text-indigo-600/80 dark:bg-indigo-400/10 dark:text-indigo-400/80 border border-indigo-200/30 dark:border-indigo-400/10">
+                  {task.category}
+                </span>
+              )}
+              <div className="flex items-center gap-1">
+                <div className={`w-2 h-2 rounded-full ${priorityDot[task.priority]}`} />
+                <span className="text-[11px] font-medium text-slate-500/70 dark:text-slate-400/70">
+                  {priorityLabel[task.priority]}
+                </span>
+              </div>
+              {task.dueDate && (
+                <span className={`text-[11px] font-mono ${isOverdue && !isDone ? 'text-rose-500/80 font-medium' : 'text-slate-400/60 dark:text-slate-500/60'}`}>
+                  {task.dueDate}
+                </span>
+              )}
+            </div>
             {task.description && (
-              <p className="text-xs text-slate-500/70 dark:text-slate-400/70 mt-0.5 line-clamp-2">
+              <p className="text-xs text-slate-500/70 dark:text-slate-400/70 mt-1 line-clamp-2">
                 {task.description}
               </p>
-            )}
-          </div>
-
-          {/* 右侧标签区 */}
-          <div className="flex items-center gap-2 shrink-0">
-            {task.category && (
-              <span className="inline-flex items-center px-2 py-0.5 rounded-full text-[11px] font-medium bg-indigo-500/8 text-indigo-600/80 dark:bg-indigo-400/10 dark:text-indigo-400/80 border border-indigo-200/30 dark:border-indigo-400/10">
-                {task.category}
-              </span>
-            )}
-            {/* 优先级圆点 + 文字 */}
-            <div className="flex items-center gap-1">
-              <div className={`w-2 h-2 rounded-full ${priorityDot[task.priority]}`} />
-              <span className="text-[11px] font-medium text-slate-500/70 dark:text-slate-400/70">
-                {priorityLabel[task.priority]}
-              </span>
-            </div>
-            {task.dueDate && (
-              <span className={`text-[11px] font-mono ${isOverdue && !isDone ? 'text-rose-500/80 font-medium' : 'text-slate-400/60 dark:text-slate-500/60'}`}>
-                {task.dueDate}
-              </span>
             )}
           </div>
         </div>
