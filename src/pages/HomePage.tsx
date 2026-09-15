@@ -20,12 +20,74 @@ const decoBubbles = [
 // 模块级位置缓存（确保位置永不因重渲染而变化）
 const positionCache: Record<string, { left: number; top: number }> = {}
 
-function getCachedPosition(id: string, margin: number): { left: number; top: number } {
+// 气泡尺寸（与 TaskBubble 中的 sizeMap 一致）
+const bubbleSizeMap: Record<string, { w: number; h: number }> = {
+  high: { w: 110, h: 118 },
+  medium: { w: 90, h: 97 },
+  low: { w: 74, h: 80 },
+}
+
+// 检测两个气泡是否碰撞（百分比坐标 + 像素尺寸）
+function overlaps(
+  a: { left: number; top: number; w: number; h: number },
+  b: { left: number; top: number; w: number; h: number },
+  containerW: number,
+  containerH: number
+): boolean {
+  const ax1 = ((a.left / 100) * containerW) - a.w / 2
+  const ay1 = ((a.top / 100) * containerH) - a.h / 2
+  const ax2 = ax1 + a.w
+  const ay2 = ay1 + a.h
+  const bx1 = ((b.left / 100) * containerW) - b.w / 2
+  const by1 = ((b.top / 100) * containerH) - b.h / 2
+  const bx2 = bx1 + b.w
+  const by2 = by1 + b.h
+  // 加 8px 间距
+  const gap = 8
+  return !(
+    ax2 + gap < bx1 || bx2 + gap < ax1 ||
+    ay2 + gap < by1 || by2 + gap < ay1
+  )
+}
+
+function getCachedPosition(
+  id: string,
+  priority: string,
+  margin: number,
+  placed: { left: number; top: number; w: number; h: number }[],
+  containerW: number,
+  containerH: number
+): { left: number; top: number } {
   if (positionCache[id]) return positionCache[id]
+  const size = bubbleSizeMap[priority] || bubbleSizeMap.medium
   let hash = 0
   for (let i = 0; i < id.length; i++) {
     hash = ((hash << 5) - hash + id.charCodeAt(i)) | 0
   }
+  // 尝试最多 80 个候选位置
+  for (let attempt = 0; attempt < 80; attempt++) {
+    const seed = hash + attempt * 7919 // 用素数偏移产生不同随机序列
+    const r1 = (Math.abs(seed * 16807) % 10000) / 10000
+    const r2 = (Math.abs((seed >> 3) * 16807) % 10000) / 10000
+    const candidate = {
+      left: margin + r1 * (100 - 2 * margin),
+      top: margin + r2 * (100 - 2 * margin),
+      w: size.w,
+      h: size.h,
+    }
+    let collision = false
+    for (const p of placed) {
+      if (overlaps(candidate, p, containerW, containerH)) {
+        collision = true
+        break
+      }
+    }
+    if (!collision) {
+      positionCache[id] = { left: candidate.left, top: candidate.top }
+      return positionCache[id]
+    }
+  }
+  // 兜底：用原始 hash 位置
   const r1 = (Math.abs(hash) % 10000) / 10000
   const r2 = (Math.abs(hash >> 16) % 10000) / 10000
   positionCache[id] = {
@@ -47,11 +109,17 @@ export default function HomePage() {
     [tasks, today]
   )
 
-  // 使用模块级缓存，确保位置永不改变
+  // 使用碰撞检测布局，确保气泡不重叠
   const positionMap = useMemo(() => {
     const map: Record<string, { left: number; top: number }> = {}
+    const placed: { left: number; top: number; w: number; h: number }[] = []
+    // 估算容器尺寸（桌面端约 1000x600 内容区）
+    const containerW = 1000
+    const containerH = 600
     for (const t of todayTasks) {
-      map[t.id] = getCachedPosition(t.id, 8)
+      const pos = getCachedPosition(t.id, t.priority, 8, placed, containerW, containerH)
+      map[t.id] = pos
+      placed.push({ ...pos, ...bubbleSizeMap[t.priority] })
     }
     return map
   }, [todayTasks])
