@@ -8,29 +8,45 @@ interface Props {
 }
 
 const sizeMap = {
-  high: { w: 120, h: 120, text: 'text-sm' },
-  medium: { w: 100, h: 100, text: 'text-xs' },
-  low: { w: 80, h: 80, text: 'text-[11px]' },
+  high: { w: 130, h: 120 },
+  medium: { w: 108, h: 100 },
+  low: { w: 88, h: 82 },
 }
 
-// 气泡颜色方案：径向渐变 + 阴影颜色
+// 气泡颜色方案
 const bubbleStyles: Record<string, { gradient: string; glow: string; highlight: string }> = {
   high: {
-    gradient: 'radial-gradient(circle at 35% 30%, rgba(255,200,210,0.9) 0%, rgba(251,113,133,0.7) 40%, rgba(225,29,72,0.5) 100%)',
+    gradient: 'radial-gradient(circle at 35% 30%, rgba(255,200,210,0.95) 0%, rgba(251,113,133,0.75) 40%, rgba(225,29,72,0.5) 100%)',
     glow: 'rgba(244, 63, 94, 0.35)',
-    highlight: 'rgba(255, 255, 255, 0.7)',
+    highlight: 'rgba(255, 255, 255, 0.75)',
   },
   medium: {
-    gradient: 'radial-gradient(circle at 35% 30%, rgba(254,240,190,0.9) 0%, rgba(251,191,36,0.7) 40%, rgba(217,119,6,0.5) 100%)',
+    gradient: 'radial-gradient(circle at 35% 30%, rgba(254,240,190,0.95) 0%, rgba(251,191,36,0.75) 40%, rgba(217,119,6,0.5) 100%)',
     glow: 'rgba(245, 158, 11, 0.35)',
-    highlight: 'rgba(255, 255, 255, 0.7)',
+    highlight: 'rgba(255, 255, 255, 0.75)',
   },
   low: {
-    gradient: 'radial-gradient(circle at 35% 30%, rgba(209,250,229,0.9) 0%, rgba(52,211,153,0.7) 40%, rgba(5,150,105,0.5) 100%)',
+    gradient: 'radial-gradient(circle at 35% 30%, rgba(209,250,229,0.95) 0%, rgba(52,211,153,0.75) 40%, rgba(5,150,105,0.5) 100%)',
     glow: 'rgba(16, 185, 129, 0.35)',
-    highlight: 'rgba(255, 255, 255, 0.7)',
+    highlight: 'rgba(255, 255, 255, 0.75)',
   },
 }
+
+// 预定义的有机形状变体（非正圆，略有椭圆/不规则感）
+const blobShapes = [
+  // 略扁的椭圆，左上更圆
+  { borderRadius: '48% 52% 55% 45% / 50% 46% 54% 50%' },
+  // 偏高的水滴感
+  { borderRadius: '52% 48% 46% 54% / 55% 52% 48% 45%' },
+  // 左右不对称
+  { borderRadius: '45% 55% 50% 50% / 48% 52% 48% 52%' },
+  // 柔和的椭圆
+  { borderRadius: '55% 45% 48% 52% / 52% 50% 50% 48%' },
+  // 微变形
+  { borderRadius: '50% 50% 45% 55% / 46% 54% 46% 54%' },
+  // 宽椭圆
+  { borderRadius: '46% 54% 52% 48% / 45% 50% 50% 55%' },
+]
 
 export default function TaskBubble({ task, onComplete }: Props) {
   const [popping, setPopping] = useState(false)
@@ -43,14 +59,14 @@ export default function TaskBubble({ task, onComplete }: Props) {
     const delay = Math.random() * 5
     const duration = 6 + Math.random() * 5
     const animName = Math.random() > 0.5 ? 'animate-bubble-float' : 'animate-bubble-drift'
-    return { delay, duration, animName }
+    const shapeIdx = Math.floor(Math.random() * blobShapes.length)
+    return { delay, duration, animName, shape: blobShapes[shapeIdx] }
   }, [])
 
   const handleClick = () => {
     if (popping) return
     setPopping(true)
 
-    // 生成粒子
     const newParticles = Array.from({ length: 8 }, (_, i) => ({
       id: Date.now() + i,
       x: (Math.random() - 0.5) * 60,
@@ -63,6 +79,8 @@ export default function TaskBubble({ task, onComplete }: Props) {
       onComplete(task.id)
     }, 450)
   }
+
+  const blobRadius = animStyle.shape.borderRadius
 
   return (
     <div className="relative inline-flex items-center justify-center">
@@ -84,7 +102,7 @@ export default function TaskBubble({ task, onComplete }: Props) {
         onClick={handleClick}
         disabled={popping}
         className={`
-          relative rounded-full flex items-center justify-center
+          relative flex items-center justify-center
           cursor-pointer select-none overflow-hidden
           transition-transform duration-300
           ${popping ? 'animate-pop' : animStyle.animName}
@@ -93,34 +111,37 @@ export default function TaskBubble({ task, onComplete }: Props) {
           width: size.w,
           height: size.h,
           background: style.gradient,
+          borderRadius: blobRadius,
           boxShadow: `0 8px 32px ${style.glow}, 0 2px 8px ${style.glow}, inset 0 -4px 12px rgba(0,0,0,0.08)`,
           animationDelay: `${animStyle.delay}s`,
           animationDuration: `${animStyle.duration}s`,
-          border: '1px solid rgba(255,255,255,0.3)',
+          border: '1px solid rgba(255,255,255,0.35)',
         }}
         title={`点击完成: ${task.title}`}
       >
         {/* 顶部高光 */}
         <div
-          className="absolute rounded-full pointer-events-none"
+          className="absolute pointer-events-none"
           style={{
-            top: '8%',
-            left: '15%',
+            top: '6%',
+            left: '12%',
             width: '55%',
-            height: '35%',
+            height: '38%',
+            borderRadius: '50% 50% 45% 55% / 60% 55% 45% 40%',
             background: `radial-gradient(ellipse, ${style.highlight} 0%, transparent 70%)`,
-            filter: 'blur(1px)',
+            filter: 'blur(2px)',
           }}
         />
 
         {/* 底部反光 */}
         <div
-          className="absolute rounded-full pointer-events-none"
+          className="absolute pointer-events-none"
           style={{
-            bottom: '10%',
-            right: '12%',
-            width: '30%',
-            height: '20%',
+            bottom: '8%',
+            right: '10%',
+            width: '32%',
+            height: '22%',
+            borderRadius: '50%',
             background: `radial-gradient(ellipse, rgba(255,255,255,0.3) 0%, transparent 70%)`,
             filter: 'blur(2px)',
           }}
@@ -128,8 +149,9 @@ export default function TaskBubble({ task, onComplete }: Props) {
 
         {/* 边缘光晕 */}
         <div
-          className="absolute inset-0 rounded-full pointer-events-none animate-glow-pulse"
+          className="absolute inset-0 pointer-events-none animate-glow-pulse"
           style={{
+            borderRadius: blobRadius,
             boxShadow: `inset 0 0 20px ${style.glow}`,
             animationDelay: `${animStyle.delay + 1}s`,
           }}
@@ -137,8 +159,9 @@ export default function TaskBubble({ task, onComplete }: Props) {
 
         {/* 文字 */}
         <span
-          className={`${size.text} font-semibold px-3 text-center leading-tight line-clamp-2 relative z-10`}
+          className="font-semibold px-3 text-center leading-tight line-clamp-2 relative z-10"
           style={{
+            fontSize: task.priority === 'high' ? '0.875rem' : task.priority === 'medium' ? '0.8rem' : '0.72rem',
             color: 'rgba(255,255,255,0.95)',
             textShadow: '0 1px 4px rgba(0,0,0,0.2)',
           }}
