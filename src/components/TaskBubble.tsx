@@ -7,46 +7,53 @@ interface Props {
   onComplete: (id: string) => void
 }
 
+// 尺寸：雨滴状（上窄下宽，高>宽）
 const sizeMap = {
-  high: { w: 130, h: 120 },
-  medium: { w: 108, h: 100 },
-  low: { w: 88, h: 82 },
+  high: { w: 100, h: 130, text: 15 },
+  medium: { w: 82, h: 108, text: 13 },
+  low: { w: 66, h: 88, text: 11.5 },
 }
 
-// 气泡颜色方案
-const bubbleStyles: Record<string, { gradient: string; glow: string; highlight: string }> = {
+// 半透明气泡配色（真实气泡：边缘有色、中心几乎透明）
+const bubbleStyles: Record<string, { rimColor: string; innerTint: string; glow: string; edgeColor: string }> = {
   high: {
-    gradient: 'radial-gradient(circle at 35% 30%, rgba(255,200,210,0.95) 0%, rgba(251,113,133,0.75) 40%, rgba(225,29,72,0.5) 100%)',
-    glow: 'rgba(244, 63, 94, 0.35)',
-    highlight: 'rgba(255, 255, 255, 0.75)',
+    rimColor: 'rgba(244, 63, 94, 0.25)',
+    innerTint: 'rgba(251, 113, 133, 0.08)',
+    glow: 'rgba(244, 63, 94, 0.2)',
+    edgeColor: 'rgba(244, 63, 94, 0.3)',
   },
   medium: {
-    gradient: 'radial-gradient(circle at 35% 30%, rgba(254,240,190,0.95) 0%, rgba(251,191,36,0.75) 40%, rgba(217,119,6,0.5) 100%)',
-    glow: 'rgba(245, 158, 11, 0.35)',
-    highlight: 'rgba(255, 255, 255, 0.75)',
+    rimColor: 'rgba(245, 158, 11, 0.25)',
+    innerTint: 'rgba(251, 191, 36, 0.08)',
+    glow: 'rgba(245, 158, 11, 0.2)',
+    edgeColor: 'rgba(245, 158, 11, 0.3)',
   },
   low: {
-    gradient: 'radial-gradient(circle at 35% 30%, rgba(209,250,229,0.95) 0%, rgba(52,211,153,0.75) 40%, rgba(5,150,105,0.5) 100%)',
-    glow: 'rgba(16, 185, 129, 0.35)',
-    highlight: 'rgba(255, 255, 255, 0.75)',
+    rimColor: 'rgba(16, 185, 129, 0.25)',
+    innerTint: 'rgba(52, 211, 153, 0.08)',
+    glow: 'rgba(16, 185, 129, 0.2)',
+    edgeColor: 'rgba(16, 185, 129, 0.3)',
   },
 }
 
-// 预定义的有机形状变体（非正圆，略有椭圆/不规则感）
-const blobShapes = [
-  // 略扁的椭圆，左上更圆
-  { borderRadius: '48% 52% 55% 45% / 50% 46% 54% 50%' },
-  // 偏高的水滴感
-  { borderRadius: '52% 48% 46% 54% / 55% 52% 48% 45%' },
-  // 左右不对称
-  { borderRadius: '45% 55% 50% 50% / 48% 52% 48% 52%' },
-  // 柔和的椭圆
-  { borderRadius: '55% 45% 48% 52% / 52% 50% 50% 48%' },
-  // 微变形
-  { borderRadius: '50% 50% 45% 55% / 46% 54% 46% 54%' },
-  // 宽椭圆
-  { borderRadius: '46% 54% 52% 48% / 45% 50% 50% 55%' },
-]
+// 雨滴状 SVG path（尖顶圆底）
+function teardropPath(w: number, h: number): string {
+  const cx = w / 2
+  const topY = 0
+  // 底部圆弧半径
+  const r = w * 0.48
+  const bottomCenterY = h - r
+  // 从顶部尖端到右侧弧线起点的控制点
+  const cpX = w * 0.55
+  const cpY = h * 0.3
+  return [
+    `M ${cx} ${topY}`,
+    `C ${cx + cpX * 0.3} ${cpY * 0.4}, ${cx + cpX} ${cpY}, ${cx + r} ${bottomCenterY}`,
+    `A ${r} ${r} 0 1 1 ${cx - r} ${bottomCenterY}`,
+    `C ${cx - cpX} ${cpY}, ${cx - cpX * 0.3} ${cpY * 0.4}, ${cx} ${topY}`,
+    'Z',
+  ].join(' ')
+}
 
 export default function TaskBubble({ task, onComplete }: Props) {
   const [popping, setPopping] = useState(false)
@@ -59,8 +66,7 @@ export default function TaskBubble({ task, onComplete }: Props) {
     const delay = Math.random() * 5
     const duration = 6 + Math.random() * 5
     const animName = Math.random() > 0.5 ? 'animate-bubble-float' : 'animate-bubble-drift'
-    const shapeIdx = Math.floor(Math.random() * blobShapes.length)
-    return { delay, duration, animName, shape: blobShapes[shapeIdx] }
+    return { delay, duration, animName }
   }, [])
 
   const handleClick = () => {
@@ -80,7 +86,8 @@ export default function TaskBubble({ task, onComplete }: Props) {
     }, 450)
   }
 
-  const blobRadius = animStyle.shape.borderRadius
+  const path = teardropPath(size.w, size.h)
+  const clipId = `teardrop-${task.id}`
 
   return (
     <div className="relative inline-flex items-center justify-center">
@@ -103,67 +110,87 @@ export default function TaskBubble({ task, onComplete }: Props) {
         disabled={popping}
         className={`
           relative flex items-center justify-center
-          cursor-pointer select-none overflow-hidden
+          cursor-pointer select-none
           transition-transform duration-300
           ${popping ? 'animate-pop' : animStyle.animName}
         `}
         style={{
           width: size.w,
           height: size.h,
-          background: style.gradient,
-          borderRadius: blobRadius,
-          boxShadow: `0 8px 32px ${style.glow}, 0 2px 8px ${style.glow}, inset 0 -4px 12px rgba(0,0,0,0.08)`,
           animationDelay: `${animStyle.delay}s`,
           animationDuration: `${animStyle.duration}s`,
-          border: '1px solid rgba(255,255,255,0.35)',
+          filter: `drop-shadow(0 8px 24px ${style.glow})`,
         }}
         title={`点击完成: ${task.title}`}
       >
-        {/* 顶部高光 */}
-        <div
-          className="absolute pointer-events-none"
-          style={{
-            top: '6%',
-            left: '12%',
-            width: '55%',
-            height: '38%',
-            borderRadius: '50% 50% 45% 55% / 60% 55% 45% 40%',
-            background: `radial-gradient(ellipse, ${style.highlight} 0%, transparent 70%)`,
-            filter: 'blur(2px)',
-          }}
-        />
+        {/* SVG 雨滴形状容器 */}
+        <svg
+          className="absolute inset-0"
+          width={size.w}
+          height={size.h}
+          viewBox={`0 0 ${size.w} ${size.h}`}
+          style={{ overflow: 'visible' }}
+        >
+          <defs>
+            <clipPath id={clipId}>
+              <path d={path} />
+            </clipPath>
+            {/* 径向渐变：中心透明，边缘有色（真实气泡效果） */}
+            <radialGradient id={`fill-${clipId}`} cx="50%" cy="60%" r="50%">
+              <stop offset="0%" stopColor="rgba(255,255,255,0.03)" />
+              <stop offset="60%" stopColor={style.innerTint} />
+              <stop offset="100%" stopColor={style.rimColor} />
+            </radialGradient>
+          </defs>
 
-        {/* 底部反光 */}
-        <div
-          className="absolute pointer-events-none"
-          style={{
-            bottom: '8%',
-            right: '10%',
-            width: '32%',
-            height: '22%',
-            borderRadius: '50%',
-            background: `radial-gradient(ellipse, rgba(255,255,255,0.3) 0%, transparent 70%)`,
-            filter: 'blur(2px)',
-          }}
-        />
+          {/* 气泡主体：半透明填充 */}
+          <path
+            d={path}
+            fill={`url(#fill-${clipId})`}
+            stroke={style.edgeColor}
+            strokeWidth="1.2"
+          />
 
-        {/* 边缘光晕 */}
+          {/* 顶部高光弧 */}
+          <ellipse
+            cx={size.w * 0.42}
+            cy={size.h * 0.38}
+            rx={size.w * 0.18}
+            ry={size.h * 0.12}
+            fill="rgba(255,255,255,0.5)"
+            style={{ filter: 'blur(1.5px)' }}
+          />
+
+          {/* 底部小反光 */}
+          <ellipse
+            cx={size.w * 0.55}
+            cy={size.h * 0.78}
+            rx={size.w * 0.1}
+            ry={size.h * 0.06}
+            fill="rgba(255,255,255,0.25)"
+            style={{ filter: 'blur(1px)' }}
+          />
+        </svg>
+
+        {/* 边缘光晕层 */}
         <div
           className="absolute inset-0 pointer-events-none animate-glow-pulse"
           style={{
-            borderRadius: blobRadius,
-            boxShadow: `inset 0 0 20px ${style.glow}`,
+            clipPath: `url(#${clipId})`,
+            boxShadow: `inset 0 0 ${size.w * 0.2}px ${style.glow}`,
             animationDelay: `${animStyle.delay + 1}s`,
           }}
         />
 
         {/* 文字 */}
         <span
-          className="font-semibold px-3 text-center leading-tight line-clamp-2 relative z-10"
+          className="font-semibold text-center leading-tight relative z-10"
           style={{
-            fontSize: task.priority === 'high' ? '0.875rem' : task.priority === 'medium' ? '0.8rem' : '0.72rem',
-            color: 'rgba(255,255,255,0.95)',
-            textShadow: '0 1px 4px rgba(0,0,0,0.2)',
+            fontSize: size.text,
+            color: 'rgba(80, 60, 80, 0.85)',
+            textShadow: '0 1px 2px rgba(255,255,255,0.6)',
+            maxWidth: size.w * 0.65,
+            marginTop: size.h * 0.15,
           }}
         >
           {task.title}

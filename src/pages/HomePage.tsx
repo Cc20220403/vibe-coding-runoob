@@ -5,17 +5,30 @@ import TaskBubble from '../components/TaskBubble'
 import { format } from 'date-fns'
 import { zhCN } from 'date-fns/locale'
 
-// 装饰性小气泡
+// 装饰性小气泡（半透明雨滴）
 const decoBubbles = [
-  { size: 20, x: '10%', y: '20%', delay: 0, duration: 8, opacity: 0.3 },
-  { size: 14, x: '85%', y: '15%', delay: 2, duration: 10, opacity: 0.25 },
-  { size: 18, x: '75%', y: '70%', delay: 1, duration: 9, opacity: 0.2 },
-  { size: 12, x: '20%', y: '75%', delay: 3, duration: 11, opacity: 0.2 },
-  { size: 16, x: '50%', y: '10%', delay: 4, duration: 7, opacity: 0.15 },
-  { size: 10, x: '90%', y: '50%', delay: 1.5, duration: 12, opacity: 0.2 },
-  { size: 22, x: '5%', y: '50%', delay: 2.5, duration: 9, opacity: 0.15 },
-  { size: 8, x: '60%', y: '85%', delay: 0.5, duration: 10, opacity: 0.2 },
+  { size: 20, x: '10%', y: '20%', delay: 0, duration: 8, opacity: 0.25 },
+  { size: 14, x: '85%', y: '15%', delay: 2, duration: 10, opacity: 0.2 },
+  { size: 18, x: '75%', y: '70%', delay: 1, duration: 9, opacity: 0.18 },
+  { size: 12, x: '20%', y: '75%', delay: 3, duration: 11, opacity: 0.15 },
+  { size: 16, x: '50%', y: '10%', delay: 4, duration: 7, opacity: 0.12 },
+  { size: 10, x: '90%', y: '50%', delay: 1.5, duration: 12, opacity: 0.18 },
+  { size: 22, x: '5%', y: '50%', delay: 2.5, duration: 9, opacity: 0.12 },
+  { size: 8, x: '60%', y: '85%', delay: 0.5, duration: 10, opacity: 0.15 },
 ]
+
+// 预生成随机位置（避免每次渲染变化）
+function generatePositions(count: number) {
+  const positions: { left: number; top: number }[] = []
+  const margin = 8 // 距边缘百分比
+  for (let i = 0; i < count; i++) {
+    positions.push({
+      left: margin + Math.random() * (100 - 2 * margin),
+      top: margin + Math.random() * (100 - 2 * margin),
+    })
+  }
+  return positions
+}
 
 export default function HomePage() {
   const tasks = useTaskStore((s) => s.tasks)
@@ -28,6 +41,9 @@ export default function HomePage() {
     }),
     [tasks, today]
   )
+
+  // 为每个任务生成随机位置（只生成一次）
+  const positions = useMemo(() => generatePositions(todayTasks.length), [todayTasks.length])
 
   const stats = useMemo(() => {
     const total = tasks.length
@@ -46,20 +62,44 @@ export default function HomePage() {
         {decoBubbles.map((b, i) => (
           <div
             key={i}
-            className="absolute rounded-full animate-bubble-float"
+            className="absolute animate-bubble-float"
             style={{
               width: b.size,
-              height: b.size,
+              height: b.size * 1.3,
               left: b.x,
               top: b.y,
               opacity: b.opacity,
-              background: 'radial-gradient(circle at 35% 30%, rgba(255,255,255,0.8) 0%, rgba(200,200,255,0.3) 100%)',
-              boxShadow: '0 2px 12px rgba(150,150,255,0.15)',
               animationDelay: `${b.delay}s`,
               animationDuration: `${b.duration}s`,
-              border: '1px solid rgba(255,255,255,0.3)',
             }}
-          />
+          >
+            <svg width={b.size} height={b.size * 1.3} viewBox={`0 0 ${b.size} ${b.size * 1.3}`}>
+              <defs>
+                <radialGradient cx="50%" cy="60%" r="50%">
+                  <stop offset="0%" stopColor="rgba(255,255,255,0.02)" />
+                  <stop offset="70%" stopColor="rgba(200,200,255,0.06)" />
+                  <stop offset="100%" stopColor="rgba(180,180,255,0.15)" />
+                </radialGradient>
+              </defs>
+              <ellipse
+                cx={b.size / 2}
+                cy={b.size * 1.3 * 0.55}
+                rx={b.size * 0.45}
+                ry={b.size * 1.3 * 0.42}
+                fill="rgba(200,210,255,0.12)"
+                stroke="rgba(255,255,255,0.25)"
+                strokeWidth="0.5"
+              />
+              <ellipse
+                cx={b.size * 0.4}
+                cy={b.size * 1.3 * 0.4}
+                rx={b.size * 0.15}
+                ry={b.size * 0.1}
+                fill="rgba(255,255,255,0.4)"
+                style={{ filter: 'blur(0.5px)' }}
+              />
+            </svg>
+          </div>
         ))}
       </div>
 
@@ -74,13 +114,22 @@ export default function HomePage() {
         </div>
 
         {todayTasks.length > 0 ? (
-          <div className="relative min-h-[450px] flex flex-wrap items-center justify-center gap-8 p-8">
-            {todayTasks.map((task) => (
-              <TaskBubble
+          <div className="relative min-h-[500px]">
+            {todayTasks.map((task, i) => (
+              <div
                 key={task.id}
-                task={task}
-                onComplete={() => {}}
-              />
+                className="absolute"
+                style={{
+                  left: `${positions[i]?.left ?? 50}%`,
+                  top: `${positions[i]?.top ?? 50}%`,
+                  transform: 'translate(-50%, -50%)',
+                }}
+              >
+                <TaskBubble
+                  task={task}
+                  onComplete={() => {}}
+                />
+              </div>
             ))}
           </div>
         ) : (
