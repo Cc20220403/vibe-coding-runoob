@@ -1,5 +1,7 @@
-import { useState, useEffect } from 'react'
+import { useState, useEffect, useMemo } from 'react'
 import { useTaskStore } from '../store/taskStore'
+import { priorityLabel } from '../constants/task'
+import type { TaskPriority } from '../types/task'
 
 interface Props {
   isOpen: boolean
@@ -7,12 +9,27 @@ interface Props {
 }
 
 export default function BatchAddModal({ isOpen, onClose }: Props) {
-  const addTask = useTaskStore((s) => s.addTask)
+  const batchAddTasks = useTaskStore((s) => s.batchAddTasks)
+  const tasks = useTaskStore((s) => s.tasks)
   const selectedDate = useTaskStore((s) => s.selectedDate)
+
   const [text, setText] = useState('')
+  const [priority, setPriority] = useState<TaskPriority>('medium')
+  const [category, setCategory] = useState('')
+  const [description, setDescription] = useState('')
+
+  const categories = useMemo(
+    () => Array.from(new Set(tasks.map((t) => t.category).filter(Boolean))),
+    [tasks]
+  )
 
   useEffect(() => {
-    if (isOpen) setText('')
+    if (isOpen) {
+      setText('')
+      setPriority('medium')
+      setCategory('')
+      setDescription('')
+    }
   }, [isOpen])
 
   useEffect(() => {
@@ -28,26 +45,26 @@ export default function BatchAddModal({ isOpen, onClose }: Props) {
     e.preventDefault()
     const lines = text.split('\n').map((l) => l.trim()).filter(Boolean)
     if (lines.length === 0) return
-    for (const title of lines) {
-      addTask({
-        title,
-        description: '',
-        category: '',
-        priority: 'medium',
-        dueDate: selectedDate,
-      })
-    }
+    batchAddTasks(lines, {
+      description: description.trim(),
+      category: category.trim(),
+      priority,
+      dueDate: selectedDate,
+    })
     onClose()
   }
 
   if (!isOpen) return null
 
   const lineCount = text.split('\n').filter((l) => l.trim()).length
+  const inputClass =
+    'w-full px-3.5 py-2.5 rounded-xl border text-sm text-slate-800 dark:text-slate-100 placeholder-slate-400/60 dark:placeholder-slate-500/60 bg-white/50 dark:bg-white/5 outline-none transition-colors focus:border-indigo-400/50 focus:ring-2 focus:ring-indigo-500/10 backdrop-blur-sm'
+  const borderClass = 'border-white/30 dark:border-white/10'
 
   return (
     <div className="fixed inset-0 z-50 flex items-center justify-center p-4 animate-fadeIn">
       <div className="absolute inset-0 bg-black/20 backdrop-blur-sm" onClick={onClose} />
-      <div className="relative glass-card rounded-2xl w-full max-w-md p-6 z-10 shadow-xl">
+      <div className="relative glass-card rounded-2xl w-full max-w-md p-6 z-10 shadow-xl max-h-[90vh] overflow-y-auto">
         {/* 标题栏 */}
         <div className="flex items-center justify-between mb-5">
           <h2 className="text-lg font-semibold text-slate-800 dark:text-slate-100">
@@ -65,24 +82,80 @@ export default function BatchAddModal({ isOpen, onClose }: Props) {
         </div>
 
         <form onSubmit={handleSubmit} className="space-y-4">
+          {/* 任务标题（多行） */}
           <div>
             <label className="block text-sm font-medium text-slate-700 dark:text-slate-300 mb-1.5">
-              每行一个任务标题
+              任务标题 <span className="text-slate-400 dark:text-slate-500 font-normal">（每行一个）</span>
             </label>
             <textarea
               value={text}
               onChange={(e) => setText(e.target.value)}
-              rows={8}
+              rows={6}
               placeholder={'买牛奶\n写周报\n预约牙医\n...'}
               autoFocus
-              className="w-full px-3.5 py-2.5 rounded-xl border border-white/30 dark:border-white/10 bg-white/50 dark:bg-white/5 text-sm text-slate-800 dark:text-slate-100 placeholder-slate-400/60 dark:placeholder-slate-500/60 outline-none transition-colors focus:border-indigo-400/50 focus:ring-2 focus:ring-indigo-500/10 backdrop-blur-sm resize-none"
+              className={`${inputClass} ${borderClass} resize-none`}
             />
-            {lineCount > 0 && (
-              <p className="mt-1.5 text-xs text-slate-500/60 dark:text-slate-400/60">
-                将创建 <span className="font-semibold text-indigo-500 dark:text-indigo-400">{lineCount}</span> 个任务，日期：{selectedDate}
-              </p>
-            )}
           </div>
+
+          {/* 公共描述 */}
+          <div>
+            <label className="block text-sm font-medium text-slate-700 dark:text-slate-300 mb-1.5">
+              描述 <span className="text-slate-400 dark:text-slate-500 font-normal">(选填，应用到所有任务)</span>
+            </label>
+            <input
+              type="text"
+              value={description}
+              onChange={(e) => setDescription(e.target.value)}
+              maxLength={500}
+              placeholder="所有任务共用的描述"
+              className={`${inputClass} ${borderClass}`}
+            />
+          </div>
+
+          {/* 分类 + 优先级 */}
+          <div className="grid grid-cols-2 gap-4">
+            <div>
+              <label className="block text-sm font-medium text-slate-700 dark:text-slate-300 mb-1.5">
+                分类 <span className="text-slate-400 dark:text-slate-500 font-normal">(选填)</span>
+              </label>
+              <input
+                type="text"
+                value={category}
+                onChange={(e) => setCategory(e.target.value)}
+                list="batch-category-options"
+                maxLength={30}
+                placeholder="如：工作、学习"
+                className={`${inputClass} ${borderClass}`}
+              />
+              <datalist id="batch-category-options">
+                {categories.map((cat) => (
+                  <option key={cat} value={cat} />
+                ))}
+              </datalist>
+            </div>
+            <div>
+              <label className="block text-sm font-medium text-slate-700 dark:text-slate-300 mb-1.5">优先级</label>
+              <select
+                value={priority}
+                onChange={(e) => setPriority(e.target.value as TaskPriority)}
+                className={`${inputClass} ${borderClass}`}
+              >
+                <option value="low">{priorityLabel.low}</option>
+                <option value="medium">{priorityLabel.medium}</option>
+                <option value="high">{priorityLabel.high}</option>
+              </select>
+            </div>
+          </div>
+
+          {/* 汇总信息 */}
+          {lineCount > 0 && (
+            <p className="text-xs text-slate-500/60 dark:text-slate-400/60">
+              将创建 <span className="font-semibold text-indigo-500 dark:text-indigo-400">{lineCount}</span> 个任务
+              ，日期：{selectedDate}
+              {priority && <>，优先级：<span className="font-medium">{priorityLabel[priority]}</span></>}
+              {category && <>，分类：<span className="font-medium">{category}</span></>}
+            </p>
+          )}
 
           <div className="flex items-center justify-end gap-3 pt-1">
             <button
