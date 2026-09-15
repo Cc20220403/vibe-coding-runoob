@@ -85,18 +85,24 @@ body {
   100% { transform: scale(0); opacity: 0; }
 }
 
-/* 雨滴戳破：先压扁再扩散消失 */
+/* 雨滴戳破：瞬间膨胀 + 闪白 + 消散 */
 @keyframes pop-drop {
-  0% { transform: scale(1, 1); opacity: 1; }
-  15% { transform: scale(1.12, 0.88); opacity: 0.9; }
-  40% { transform: scale(1.35, 0.55); opacity: 0.5; }
-  100% { transform: scale(1.7, 0.15); opacity: 0; }
+  0% { transform: scale(1); opacity: 1; filter: brightness(1); }
+  10% { transform: scale(1.1); opacity: 1; filter: brightness(1.6); }
+  35% { transform: scale(1.55); opacity: 0.5; filter: brightness(2); }
+  100% { transform: scale(1.9); opacity: 0; filter: brightness(2.5); }
 }
 
 /* 涟漪扩散环 */
 @keyframes pop-ripple {
   0% { transform: translate(-50%, -50%) scale(0.5); opacity: 0.7; }
   100% { transform: translate(-50%, -50%) scale(3.2); opacity: 0; }
+}
+
+/* 闪白爆发 */
+@keyframes pop-flash {
+  0% { transform: translate(-50%, -50%) scale(0.3); opacity: 1; }
+  100% { transform: translate(-50%, -50%) scale(2.5); opacity: 0; }
 }
 
 @keyframes fadeIn {

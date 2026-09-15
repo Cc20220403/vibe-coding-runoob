@@ -23,10 +23,10 @@ const bubbleStyles: Record<string, { tint: string; rim: string; glow: string; ed
     edge: 'rgba(244, 63, 94, 0.28)',
   },
   medium: {
-    tint: 'rgba(251, 191, 36, 0.06)',
-    rim: 'rgba(245, 158, 11, 0.22)',
-    glow: 'rgba(245, 158, 11, 0.25)',
-    edge: 'rgba(245, 158, 11, 0.28)',
+    tint: 'rgba(129, 140, 248, 0.06)',
+    rim: 'rgba(99, 102, 241, 0.22)',
+    glow: 'rgba(99, 102, 241, 0.25)',
+    edge: 'rgba(99, 102, 241, 0.28)',
   },
   low: {
     tint: 'rgba(52, 211, 153, 0.06)',
@@ -155,6 +155,20 @@ export default function TaskBubble({ task, onComplete }: Props) {
               }}
             />
           ))}
+
+          {/* 闪白爆发 */}
+          <div
+            className="absolute pointer-events-none rounded-full"
+            style={{
+              left: '50%',
+              top: '50%',
+              width: size.w * 0.5,
+              height: size.w * 0.5,
+              transform: 'translate(-50%, -50%)',
+              background: 'radial-gradient(circle, rgba(255,255,255,0.9) 0%, rgba(255,255,255,0) 70%)',
+              animation: 'pop-flash 0.3s ease-out forwards',
+            }}
+          />
         </>
       )}
 

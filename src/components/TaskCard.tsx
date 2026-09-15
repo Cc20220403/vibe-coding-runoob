@@ -12,7 +12,7 @@ interface Props {
 
 const priorityDot: Record<string, string> = {
   high: 'bg-rose-500',
-  medium: 'bg-amber-500',
+  medium: 'bg-indigo-500',
   low: 'bg-emerald-500',
 }
 
@@ -36,7 +36,7 @@ export default function TaskCard({ task, onEdit, isOverdue }: Props) {
         style={{
           borderLeft: isOverdue && !isDone
             ? '3px solid rgba(244,63,94,0.6)'
-            : `3px solid ${task.priority === 'high' ? 'rgba(244,63,94,0.4)' : task.priority === 'medium' ? 'rgba(245,158,11,0.3)' : 'rgba(16,185,129,0.3)'}`,
+            : `3px solid ${task.priority === 'high' ? 'rgba(244,63,94,0.4)' : task.priority === 'medium' ? 'rgba(99,102,241,0.3)' : 'rgba(16,185,129,0.3)'}`,
         }}
       >
         {/* 操作按钮组 */}
