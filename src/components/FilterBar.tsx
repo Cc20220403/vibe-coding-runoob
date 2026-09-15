@@ -1,9 +1,10 @@
+import { useMemo } from 'react'
 import { useTaskStore } from '../store/taskStore'
 import { priorityLabel, statusLabel } from '../constants/task'
 import type { TaskPriority, TaskStatus } from '../types/task'
 
 export default function FilterBar() {
-  const categories = useTaskStore((s) => s.getCategories())
+  const tasks = useTaskStore((s) => s.tasks)
   const filterCategory = useTaskStore((s) => s.filterCategory)
   const filterPriority = useTaskStore((s) => s.filterPriority)
   const filterStatus = useTaskStore((s) => s.filterStatus)
@@ -12,6 +13,11 @@ export default function FilterBar() {
   const setFilterPriority = useTaskStore((s) => s.setFilterPriority)
   const setFilterStatus = useTaskStore((s) => s.setFilterStatus)
   const setSearchKeyword = useTaskStore((s) => s.setSearchKeyword)
+
+  const categories = useMemo(
+    () => Array.from(new Set(tasks.map((t) => t.category).filter(Boolean))),
+    [tasks]
+  )
 
   const selectClass =
     'px-3 py-2 text-sm rounded-lg border border-slate-300 dark:border-slate-600 bg-white dark:bg-slate-800 text-slate-700 dark:text-slate-200 outline-none focus:border-indigo-500 focus:ring-2 focus:ring-indigo-500/20 transition-colors'

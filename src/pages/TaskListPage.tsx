@@ -1,4 +1,4 @@
-import { useState } from 'react'
+import { useMemo, useState } from 'react'
 import type { Task } from '../types/task'
 import { useTaskStore } from '../store/taskStore'
 import NavBar from '../components/NavBar'
@@ -9,12 +9,30 @@ import KanbanBoard from '../components/KanbanBoard'
 import TaskFormModal from '../components/TaskFormModal'
 
 export default function TaskListPage() {
-  const getFilteredTasks = useTaskStore((s) => s.getFilteredTasks)
+  const tasks = useTaskStore((s) => s.tasks)
+  const filterCategory = useTaskStore((s) => s.filterCategory)
+  const filterPriority = useTaskStore((s) => s.filterPriority)
+  const filterStatus = useTaskStore((s) => s.filterStatus)
+  const searchKeyword = useTaskStore((s) => s.searchKeyword)
+
   const [view, setView] = useState<'list' | 'kanban'>('list')
   const [showModal, setShowModal] = useState(false)
   const [editTask, setEditTask] = useState<Task | null>(null)
 
-  const filteredTasks = getFilteredTasks()
+  const filteredTasks = useMemo(() => {
+    let result = [...tasks]
+    if (filterCategory) result = result.filter((t) => t.category === filterCategory)
+    if (filterPriority) result = result.filter((t) => t.priority === filterPriority)
+    if (filterStatus) result = result.filter((t) => t.status === filterStatus)
+    if (searchKeyword.trim()) {
+      const kw = searchKeyword.toLowerCase()
+      result = result.filter(
+        (t) => t.title.toLowerCase().includes(kw) || t.description.toLowerCase().includes(kw)
+      )
+    }
+    result.sort((a, b) => new Date(b.createdAt).getTime() - new Date(a.createdAt).getTime())
+    return result
+  }, [tasks, filterCategory, filterPriority, filterStatus, searchKeyword])
 
   function handleEdit(task: Task) {
     setEditTask(task)
@@ -31,14 +49,11 @@ export default function TaskListPage() {
       <NavBar />
 
       <main className="max-w-5xl mx-auto px-6 py-8">
-        {/* 统计卡片 */}
         <Stats />
 
-        {/* 工具栏 */}
         <div className="flex items-center justify-between mb-4 flex-wrap gap-3">
           <h2 className="text-lg font-semibold text-slate-800 dark:text-slate-100">任务管理</h2>
           <div className="flex items-center gap-3">
-            {/* 视图切换 */}
             <div className="flex items-center gap-1 bg-white dark:bg-slate-800 rounded-lg p-1 shadow-sm border border-slate-200 dark:border-slate-700">
               <button
                 onClick={() => setView('list')}
@@ -66,7 +81,6 @@ export default function TaskListPage() {
               </button>
             </div>
 
-            {/* 新建任务按钮 */}
             <button
               onClick={() => { setEditTask(null); setShowModal(true) }}
               className="flex items-center gap-1.5 px-4 py-2 text-sm font-medium text-white bg-indigo-600 hover:bg-indigo-700 rounded-lg shadow-sm transition-colors"
@@ -80,10 +94,8 @@ export default function TaskListPage() {
           </div>
         </div>
 
-        {/* 筛选栏 */}
         <FilterBar />
 
-        {/* 任务视图 */}
         {view === 'list' ? (
           <TaskList tasks={filteredTasks} onEdit={handleEdit} />
         ) : (
@@ -91,7 +103,6 @@ export default function TaskListPage() {
         )}
       </main>
 
-      {/* 新建/编辑弹窗 */}
       <TaskFormModal isOpen={showModal} onClose={handleCloseModal} editTask={editTask} />
     </div>
   )

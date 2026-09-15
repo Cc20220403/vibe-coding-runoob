@@ -1,4 +1,4 @@
-import { useState, useEffect } from 'react'
+import { useState, useEffect, useMemo } from 'react'
 import type { Task, TaskPriority } from '../types/task'
 import { useTaskStore } from '../store/taskStore'
 
@@ -11,7 +11,11 @@ interface Props {
 export default function TaskFormModal({ isOpen, onClose, editTask }: Props) {
   const addTask = useTaskStore((s) => s.addTask)
   const updateTask = useTaskStore((s) => s.updateTask)
-  const categories = useTaskStore((s) => s.getCategories())
+  const tasks = useTaskStore((s) => s.tasks)
+  const categories = useMemo(
+    () => Array.from(new Set(tasks.map((t) => t.category).filter(Boolean))),
+    [tasks]
+  )
 
   const [title, setTitle] = useState('')
   const [description, setDescription] = useState('')

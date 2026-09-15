@@ -6,7 +6,7 @@ import App from './App'
 
 createRoot(document.getElementById('root')!).render(
   <StrictMode>
-    <BrowserRouter>
+    <BrowserRouter basename="/vibe-coding-runoob">
       <App />
     </BrowserRouter>
   </StrictMode>

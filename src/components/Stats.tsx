@@ -1,7 +1,17 @@
+import { useMemo } from 'react'
 import { useTaskStore } from '../store/taskStore'
 
 export default function Stats() {
-  const stats = useTaskStore((s) => s.getStats())
+  const tasks = useTaskStore((s) => s.tasks)
+
+  const stats = useMemo(() => {
+    const total = tasks.length
+    const todo = tasks.filter((t) => t.status === 'todo').length
+    const inProgress = tasks.filter((t) => t.status === 'in-progress').length
+    const done = tasks.filter((t) => t.status === 'done').length
+    const completionRate = total > 0 ? Math.round((done / total) * 100) : 0
+    return { total, todo, inProgress, done, completionRate }
+  }, [tasks])
 
   const items = [
     { label: '总任务', value: stats.total, color: 'text-slate-700 dark:text-slate-200' },
