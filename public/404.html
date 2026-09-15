@@ -1,0 +1,19 @@
+<!DOCTYPE html>
+<html>
+<head>
+  <meta charset="utf-8">
+  <title>智能看板 - Vibe Coding</title>
+  <script type="text/javascript">
+    var path = window.location.pathname;
+    var base = '/vibe-coding-runoob';
+    // Strip the base path to get the SPA route
+    var route = path.startsWith(base) ? path.slice(base.length) : '/';
+    // Redirect to index.html with the route as a query parameter
+    var target = base + '/index.html?route=' + encodeURIComponent(route);
+    window.location.replace(target);
+  </script>
+</head>
+<body>
+  <p>Redirecting...</p>
+</body>
+</html>
