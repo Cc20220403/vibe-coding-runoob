@@ -1,4 +1,4 @@
-import { useMemo, useState, useCallback } from 'react'
+import { useMemo, useState, useCallback, useEffect } from 'react'
 import type { Task } from '../types/task'
 import { useTaskStore } from '../store/taskStore'
 import NavBar from '../components/NavBar'
@@ -20,6 +20,20 @@ export default function TaskListPage() {
   const filterStatus = useTaskStore((s) => s.filterStatus)
   const searchKeyword = useTaskStore((s) => s.searchKeyword)
   const batchDeleteTasks = useTaskStore((s) => s.batchDeleteTasks)
+  const setTasks = useTaskStore((s) => s.setTasks)
+
+  // 清理重复ID数据（修复旧版 localStorage 中同毫秒创建的重复ID）
+  useEffect(() => {
+    const seen = new Set<string>()
+    const unique = tasks.filter((t) => {
+      if (seen.has(t.id)) return false
+      seen.add(t.id)
+      return true
+    })
+    if (unique.length < tasks.length) {
+      setTasks(unique)
+    }
+  }, []) // eslint-disable-line react-hooks/exhaustive-deps
 
   const [view, setView] = useState<'list' | 'kanban'>('list')
   const [showModal, setShowModal] = useState(false)
@@ -64,10 +78,10 @@ export default function TaskListPage() {
     return { dayTasks: day, overdueTasks: overdue }
   }, [tasks, selectedDate, filterCategory, filterPriority, filterStatus, searchKeyword])
 
-  // 所有可见任务的 ID 列表
+  // 所有可见任务的 ID 列表（去重，防御性处理）
   const allVisibleIds = useMemo(() => {
     const ids = [...overdueTasks.map((t) => t.id), ...dayTasks.map((t) => t.id)]
-    return ids
+    return [...new Set(ids)]
   }, [dayTasks, overdueTasks])
 
   const handleEdit = useCallback((task: Task) => {
@@ -98,10 +112,11 @@ export default function TaskListPage() {
   }
 
   const handleBatchDelete = () => {
+    if (selectedIds.size === 0) return
     batchDeleteTasks(Array.from(selectedIds))
+    setShowBatchDelete(false)
     setSelectedIds(new Set())
     setBatchMode(false)
-    setShowBatchDelete(false)
   }
 
   const exitBatchMode = () => {

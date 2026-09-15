@@ -19,6 +19,7 @@ interface TaskState {
   updateTask: (id: string, updates: Partial<Task>) => void
   deleteTask: (id: string) => void
   batchDeleteTasks: (ids: string[]) => void
+  setTasks: (tasks: Task[]) => void
   toggleTask: (id: string) => void
   
   // 筛选操作
@@ -88,6 +89,10 @@ export const useTaskStore = create<TaskState>()(
         set((state) => ({
           tasks: state.tasks.filter((t) => !idSet.has(t.id)),
         }))
+      },
+
+      setTasks: (tasks) => {
+        set({ tasks })
       },
 
       toggleTask: (id) => {
