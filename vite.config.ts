@@ -1,9 +1,9 @@
 import tailwindcss from '@tailwindcss/vite'
-import vue from '@vitejs/plugin-vue'
+import react from '@vitejs/plugin-react'
 import { defineConfig } from 'vite'
 
 // https://vite.dev/config/
 export default defineConfig({
   base: '/vibe-coding-runoob/',
-  plugins: [vue(), tailwindcss()],
+  plugins: [react(), tailwindcss()],
 })

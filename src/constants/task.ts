@@ -20,3 +20,17 @@ export const priorityBadge: Record<TaskPriority, string> = {
   medium: 'bg-amber-50 text-amber-600 dark:bg-amber-900/30 dark:text-amber-400',
   low: 'bg-emerald-50 text-emerald-600 dark:bg-emerald-900/30 dark:text-emerald-400',
 }
+
+/** 状态标签 */
+export const statusLabel: Record<string, string> = {
+  todo: '待办',
+  'in-progress': '进行中',
+  done: '已完成',
+}
+
+/** 状态颜色 */
+export const statusColor: Record<string, string> = {
+  todo: 'text-slate-600 dark:text-slate-400',
+  'in-progress': 'text-amber-600 dark:text-amber-400',
+  done: 'text-emerald-600 dark:text-emerald-400',
+}
