@@ -17,17 +17,22 @@ const decoBubbles = [
   { size: 8, x: '60%', y: '85%', delay: 0.5, duration: 10, opacity: 0.15 },
 ]
 
-// 预生成随机位置（避免每次渲染变化）
-function generatePositions(count: number) {
-  const positions: { left: number; top: number }[] = []
-  const margin = 8 // 距边缘百分比
-  for (let i = 0; i < count; i++) {
-    positions.push({
-      left: margin + Math.random() * (100 - 2 * margin),
-      top: margin + Math.random() * (100 - 2 * margin),
-    })
+// 模块级位置缓存（确保位置永不因重渲染而变化）
+const positionCache: Record<string, { left: number; top: number }> = {}
+
+function getCachedPosition(id: string, margin: number): { left: number; top: number } {
+  if (positionCache[id]) return positionCache[id]
+  let hash = 0
+  for (let i = 0; i < id.length; i++) {
+    hash = ((hash << 5) - hash + id.charCodeAt(i)) | 0
   }
-  return positions
+  const r1 = (Math.abs(hash) % 10000) / 10000
+  const r2 = (Math.abs(hash >> 16) % 10000) / 10000
+  positionCache[id] = {
+    left: margin + r1 * (100 - 2 * margin),
+    top: margin + r2 * (100 - 2 * margin),
+  }
+  return positionCache[id]
 }
 
 export default function HomePage() {
@@ -42,8 +47,14 @@ export default function HomePage() {
     [tasks, today]
   )
 
-  // 为每个任务生成随机位置（只生成一次）
-  const positions = useMemo(() => generatePositions(todayTasks.length), [todayTasks.length])
+  // 使用模块级缓存，确保位置永不改变
+  const positionMap = useMemo(() => {
+    const map: Record<string, { left: number; top: number }> = {}
+    for (const t of todayTasks) {
+      map[t.id] = getCachedPosition(t.id, 8)
+    }
+    return map
+  }, [todayTasks])
 
   const stats = useMemo(() => {
     const total = tasks.length
@@ -115,13 +126,13 @@ export default function HomePage() {
 
         {todayTasks.length > 0 ? (
           <div className="relative min-h-[500px]">
-            {todayTasks.map((task, i) => (
+            {todayTasks.map((task) => (
               <div
                 key={task.id}
                 className="absolute"
                 style={{
-                  left: `${positions[i]?.left ?? 50}%`,
-                  top: `${positions[i]?.top ?? 50}%`,
+                  left: `${positionMap[task.id]?.left ?? 50}%`,
+                  top: `${positionMap[task.id]?.top ?? 50}%`,
                   transform: 'translate(-50%, -50%)',
                 }}
               >

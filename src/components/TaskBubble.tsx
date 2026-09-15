@@ -7,7 +7,7 @@ interface Props {
   onComplete: (id: string) => void
 }
 
-// 尺寸：胖胖的水滴形（接近圆形，顶部微凸）
+// 尺寸：胖胖的水滴形
 const sizeMap = {
   high: { w: 110, h: 118, text: 15 },
   medium: { w: 90, h: 97, text: 13 },
@@ -36,13 +36,12 @@ const bubbleStyles: Record<string, { tint: string; rim: string; glow: string; ed
   },
 }
 
-// 胖胖的雨滴路径：接近圆形，顶部有微凸的小尖尖
+// 胖胖的雨滴路径
 function dropPath(w: number, h: number): string {
   const cx = w / 2
   const bodyR = Math.min(w, h) * 0.44
   const bodyCY = h * 0.56
   const topY = h * 0.06
-  // 从顶部小尖尖 → 右侧平滑过渡到圆弧 → 底部大圆弧 → 左侧回来
   return [
     `M ${cx} ${topY}`,
     `C ${cx + w * 0.06} ${h * 0.12}, ${cx + bodyR} ${bodyCY - bodyR * 0.6}, ${cx + bodyR} ${bodyCY}`,
@@ -52,25 +51,41 @@ function dropPath(w: number, h: number): string {
   ].join(' ')
 }
 
-// 生成散射粒子
-function scatterParticles(count: number) {
-  const animId = `p${Date.now()}`
-  const items = Array.from({ length: count }, (_, i) => {
+// 生成爆裂碎片数据（从中心向四周飞散的不规则弧面碎片）
+function genFragments(count: number) {
+  return Array.from({ length: count }, (_, i) => {
     const angle = (i / count) * Math.PI * 2 + (Math.random() - 0.5) * 0.8
-    const dist = 18 + Math.random() * 35
-    const dx = Math.cos(angle) * dist
-    const dy = Math.sin(angle) * dist - 10
-    const size = 3 + Math.random() * 5
-    return { dx, dy, size, delay: Math.random() * 0.08 }
+    const dist = 35 + Math.random() * 55
+    return {
+      tx: Math.cos(angle) * dist,
+      ty: Math.sin(angle) * dist,
+      rot: (Math.random() - 0.5) * 720,
+      w: 5 + Math.random() * 10,
+      h: 3 + Math.random() * 6,
+      delay: Math.random() * 0.03,
+    }
   })
+}
 
+// 生成散射粒子（更多更远）
+function genParticles(count: number) {
+  const animId = `sp${Date.now()}`
+  const items = Array.from({ length: count }, (_, i) => {
+    const angle = (i / count) * Math.PI * 2 + (Math.random() - 0.5) * 1.0
+    const dist = 30 + Math.random() * 70
+    return {
+      dx: Math.cos(angle) * dist,
+      dy: Math.sin(angle) * dist,
+      size: 2 + Math.random() * 5,
+      delay: Math.random() * 0.04,
+    }
+  })
   const kf = items
     .map(
       (p, i) =>
-        `@keyframes ${animId}_${i}{0%{transform:translate(0,0) scale(1);opacity:.7}100%{transform:translate(${p.dx}px,${p.dy}px) scale(0);opacity:0}}`
+        `@keyframes ${animId}_${i}{0%{transform:translate(0,0) scale(1);opacity:.9}100%{transform:translate(${p.dx}px,${p.dy}px) scale(0);opacity:0}}`
     )
     .join('')
-
   return { items, animId, kf }
 }
 
@@ -87,7 +102,8 @@ export default function TaskBubble({ task, onComplete }: Props) {
     return { delay, duration, name }
   }, [])
 
-  const scatter = useMemo(() => (popping ? scatterParticles(10) : null), [popping])
+  const fragments = useMemo(() => (popping ? genFragments(14) : null), [popping])
+  const scatter = useMemo(() => (popping ? genParticles(20) : null), [popping])
 
   const handleClick = () => {
     if (popping) return
@@ -95,7 +111,7 @@ export default function TaskBubble({ task, onComplete }: Props) {
     setTimeout(() => {
       toggleTask(task.id)
       onComplete(task.id)
-    }, 480)
+    }, 280)
   }
 
   const path = dropPath(size.w, size.h)
@@ -103,73 +119,93 @@ export default function TaskBubble({ task, onComplete }: Props) {
 
   return (
     <div className="relative inline-flex items-center justify-center">
-      {/* 戳破动画层 */}
-      {scatter && (
-        <>
+      {/* 爆裂效果层 */}
+      {popping && fragments && scatter && (
+        <div className="absolute inset-0" style={{ pointerEvents: 'none' }}>
           <style>{scatter.kf}</style>
 
-          {/* 涟漪扩散环 */}
+          {/* 环形闪光 */}
           <div
-            className="absolute pointer-events-none"
+            className="absolute pointer-events-none rounded-full"
             style={{
               left: '50%',
-              top: '55%',
-              width: size.w * 0.6,
-              height: size.w * 0.6,
-              transform: 'translate(-50%, -50%)',
-              borderRadius: '50%',
-              border: `2px solid ${style.glow}`,
-              animation: 'pop-ripple 0.48s ease-out forwards',
+              top: '50%',
+              width: size.w * 0.7,
+              height: size.w * 0.7,
+              background: `radial-gradient(circle, rgba(255,255,255,0.95) 0%, ${style.glow} 40%, transparent 70%)`,
+              animation: 'ring-flash 0.15s ease-out forwards',
             }}
           />
 
-          {/* 第二层涟漪（延迟） */}
-          <div
-            className="absolute pointer-events-none"
-            style={{
-              left: '50%',
-              top: '55%',
-              width: size.w * 0.4,
-              height: size.w * 0.4,
-              transform: 'translate(-50%, -50%)',
-              borderRadius: '50%',
-              border: `1.5px solid ${style.glow}`,
-              animation: 'pop-ripple 0.48s ease-out 0.06s forwards',
-              opacity: 0,
-            }}
-          />
+          {/* 弧面碎片（像水滴破裂的碎片） */}
+          {fragments.map((f, i) => (
+            <div
+              key={`f${i}`}
+              className="absolute pointer-events-none"
+              style={{
+                left: '50%',
+                top: '50%',
+                width: f.w,
+                height: f.h,
+                borderRadius: '45% 55% 40% 60%',
+                background: style.edge,
+                boxShadow: `0 0 4px ${style.glow}`,
+                '--tx': `${f.tx}px`,
+                '--ty': `${f.ty}px`,
+                '--rot': `${f.rot}deg`,
+                animation: `frag-fly 0.3s ease-out ${f.delay}s forwards`,
+              } as React.CSSProperties}
+            />
+          ))}
 
           {/* 散射水滴粒子 */}
           {scatter.items.map((p, i) => (
             <div
-              key={i}
+              key={`p${i}`}
               className="absolute pointer-events-none"
               style={{
                 left: '50%',
                 top: '50%',
                 width: p.size,
                 height: p.size,
-                borderRadius: '50% 50% 50% 0%',
+                borderRadius: '50%',
                 background: style.glow,
-                animation: `${scatter.animId}_${i} 0.45s ease-out ${p.delay}s forwards`,
+                animation: `${scatter.animId}_${i} 0.3s ease-out ${p.delay}s forwards`,
               }}
             />
           ))}
 
-          {/* 闪白爆发 */}
+          {/* 涟漪环 1 */}
           <div
-            className="absolute pointer-events-none rounded-full"
+            className="absolute pointer-events-none"
             style={{
               left: '50%',
-              top: '50%',
+              top: '55%',
               width: size.w * 0.5,
               height: size.w * 0.5,
               transform: 'translate(-50%, -50%)',
-              background: 'radial-gradient(circle, rgba(255,255,255,0.9) 0%, rgba(255,255,255,0) 70%)',
-              animation: 'pop-flash 0.3s ease-out forwards',
+              borderRadius: '50%',
+              border: `2px solid ${style.glow}`,
+              animation: 'pop-ripple 0.35s ease-out forwards',
             }}
           />
-        </>
+
+          {/* 涟漪环 2 */}
+          <div
+            className="absolute pointer-events-none"
+            style={{
+              left: '50%',
+              top: '55%',
+              width: size.w * 0.35,
+              height: size.w * 0.35,
+              transform: 'translate(-50%, -50%)',
+              borderRadius: '50%',
+              border: `1.5px solid ${style.glow}`,
+              animation: 'pop-ripple 0.35s ease-out 0.04s forwards',
+              opacity: 0,
+            }}
+          />
+        </div>
       )}
 
       {/* 雨滴主体 */}
@@ -183,7 +219,7 @@ export default function TaskBubble({ task, onComplete }: Props) {
           width: size.w,
           height: size.h,
           animationDelay: popping ? '0s' : `${anim.delay}s`,
-          animationDuration: popping ? '0.48s' : `${anim.duration}s`,
+          animationDuration: popping ? '0.24s' : `${anim.duration}s`,
           filter: `drop-shadow(0 6px 20px ${style.glow})`,
         }}
         title={`点击完成: ${task.title}`}
@@ -208,7 +244,7 @@ export default function TaskBubble({ task, onComplete }: Props) {
           {/* 主体：半透明 */}
           <path d={path} fill={`url(#f${clipId})`} stroke={style.edge} strokeWidth="1.2" />
 
-          {/* 主高光：左上角亮斑 */}
+          {/* 主高光 */}
           <ellipse
             cx={size.w * 0.38}
             cy={size.h * 0.32}
@@ -218,7 +254,7 @@ export default function TaskBubble({ task, onComplete }: Props) {
             style={{ filter: 'blur(2px)' }}
           />
 
-          {/* 次高光：小亮点 */}
+          {/* 次高光 */}
           <ellipse
             cx={size.w * 0.32}
             cy={size.h * 0.26}
