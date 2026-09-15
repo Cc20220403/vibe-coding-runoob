@@ -11,6 +11,7 @@ interface TaskState {
   filterPriority: TaskPriority | ''
   filterStatus: TaskStatus | ''
   searchKeyword: string
+  selectedDate: string
   
   // 任务 CRUD
   addTask: (data: { title: string; description: string; category: string; priority: TaskPriority; dueDate: string }) => void
@@ -23,6 +24,7 @@ interface TaskState {
   setFilterPriority: (priority: TaskPriority | '') => void
   setFilterStatus: (status: TaskStatus | '') => void
   setSearchKeyword: (keyword: string) => void
+  setSelectedDate: (date: string) => void
 }
 
 export const useTaskStore = create<TaskState>()(
@@ -33,6 +35,7 @@ export const useTaskStore = create<TaskState>()(
       filterPriority: '',
       filterStatus: '',
       searchKeyword: '',
+      selectedDate: new Date().toISOString().split('T')[0],
 
       addTask: (data) => {
         const newTask: Task = {
@@ -76,10 +79,11 @@ export const useTaskStore = create<TaskState>()(
       setFilterPriority: (priority) => set({ filterPriority: priority }),
       setFilterStatus: (status) => set({ filterStatus: status }),
       setSearchKeyword: (keyword) => set({ searchKeyword: keyword }),
+      setSelectedDate: (date) => set({ selectedDate: date }),
     }),
     {
       name: 'vibe-coding-runoob-tasks',
-      partialize: (state) => ({ tasks: state.tasks }),
+      partialize: (state) => ({ tasks: state.tasks, selectedDate: state.selectedDate }),
     }
   )
 )

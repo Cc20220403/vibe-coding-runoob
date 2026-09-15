@@ -19,16 +19,25 @@ export default function FilterBar() {
     [tasks]
   )
 
+  const hasFilters = filterCategory || filterPriority || filterStatus || searchKeyword.trim()
+
+  function clearAll() {
+    setFilterCategory('')
+    setFilterPriority('')
+    setFilterStatus('')
+    setSearchKeyword('')
+  }
+
   const selectClass =
-    'px-3 py-2 text-sm rounded-lg border border-slate-300 dark:border-slate-600 bg-white dark:bg-slate-800 text-slate-700 dark:text-slate-200 outline-none focus:border-indigo-500 focus:ring-2 focus:ring-indigo-500/20 transition-colors'
+    'px-2.5 py-1.5 text-xs rounded-lg border border-slate-200 dark:border-slate-600 bg-white dark:bg-slate-800 text-slate-600 dark:text-slate-300 outline-none focus:border-indigo-500 focus:ring-1 focus:ring-indigo-500/20 transition-colors'
 
   return (
-    <div className="flex flex-wrap items-center gap-3 mb-6">
+    <div className="flex flex-wrap items-center gap-2 mb-4">
       {/* 搜索框 */}
-      <div className="relative flex-1 min-w-[200px]">
+      <div className="relative flex-1 min-w-[180px]">
         <svg
           xmlns="http://www.w3.org/2000/svg"
-          className="absolute left-3 top-1/2 -translate-y-1/2 w-4 h-4 text-slate-400"
+          className="absolute left-2.5 top-1/2 -translate-y-1/2 w-3.5 h-3.5 text-slate-400"
           viewBox="0 0 24 24"
           fill="none"
           stroke="currentColor"
@@ -44,7 +53,7 @@ export default function FilterBar() {
           placeholder="搜索任务..."
           value={searchKeyword}
           onChange={(e) => setSearchKeyword(e.target.value)}
-          className="w-full pl-9 pr-3 py-2 text-sm rounded-lg border border-slate-300 dark:border-slate-600 bg-white dark:bg-slate-800 text-slate-700 dark:text-slate-200 placeholder-slate-400 dark:placeholder-slate-500 outline-none focus:border-indigo-500 focus:ring-2 focus:ring-indigo-500/20 transition-colors"
+          className="w-full pl-8 pr-3 py-1.5 text-xs rounded-lg border border-slate-200 dark:border-slate-600 bg-white dark:bg-slate-800 text-slate-700 dark:text-slate-200 placeholder-slate-400 dark:placeholder-slate-500 outline-none focus:border-indigo-500 focus:ring-1 focus:ring-indigo-500/20 transition-colors"
         />
       </div>
 
@@ -56,9 +65,7 @@ export default function FilterBar() {
       >
         <option value="">全部分类</option>
         {categories.map((cat) => (
-          <option key={cat} value={cat}>
-            {cat}
-          </option>
+          <option key={cat} value={cat}>{cat}</option>
         ))}
       </select>
 
@@ -85,6 +92,20 @@ export default function FilterBar() {
         <option value="in-progress">{statusLabel['in-progress']}</option>
         <option value="done">{statusLabel.done}</option>
       </select>
+
+      {/* 清除筛选 */}
+      {hasFilters && (
+        <button
+          onClick={clearAll}
+          className="flex items-center gap-1 px-2.5 py-1.5 text-xs font-medium text-slate-500 dark:text-slate-400 hover:text-indigo-600 dark:hover:text-indigo-400 hover:bg-indigo-50 dark:hover:bg-indigo-900/20 rounded-lg transition-colors"
+        >
+          <svg xmlns="http://www.w3.org/2000/svg" className="w-3 h-3" viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="2" strokeLinecap="round" strokeLinejoin="round">
+            <line x1="18" y1="6" x2="6" y2="18" />
+            <line x1="6" y1="6" x2="18" y2="18" />
+          </svg>
+          清除
+        </button>
+      )}
     </div>
   )
 }

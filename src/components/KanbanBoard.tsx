@@ -12,6 +12,7 @@ const columns: { status: TaskStatus; label: string; color: string; bgColor: stri
 
 export default function KanbanBoard() {
   const tasks = useTaskStore((s) => s.tasks)
+  const selectedDate = useTaskStore((s) => s.selectedDate)
   const updateTask = useTaskStore((s) => s.updateTask)
   const toggleTask = useTaskStore((s) => s.toggleTask)
   const deleteTask = useTaskStore((s) => s.deleteTask)
@@ -20,8 +21,17 @@ export default function KanbanBoard() {
   const [dragOverColumn, setDragOverColumn] = useState<TaskStatus | null>(null)
   const [deleteTarget, setDeleteTarget] = useState<Task | null>(null)
 
+  // 选中日期的任务 + 逾期任务
+  const dayTasks = tasks.filter((t) => t.dueDate === selectedDate)
+  const overdueTasks = tasks.filter((t) => t.dueDate < selectedDate && t.status !== 'done')
+  const visibleTasks = [...overdueTasks, ...dayTasks]
+
   function getTasksByStatus(status: TaskStatus): Task[] {
-    return tasks.filter((t) => t.status === status)
+    return visibleTasks.filter((t) => t.status === status)
+  }
+
+  function isOverdue(task: Task): boolean {
+    return task.dueDate < selectedDate
   }
 
   function onDragStart(task: Task) {
@@ -78,7 +88,7 @@ export default function KanbanBoard() {
                 <div
                   key={task.id}
                   draggable
-                  className={`bg-white dark:bg-slate-800 rounded-lg shadow-sm border border-slate-200 dark:border-slate-700 border-l-4 p-3 cursor-grab active:cursor-grabbing transition-transform duration-150 hover:scale-[1.02] ${priorityBorder[task.priority]} ${draggedTaskId === task.id ? 'opacity-40 scale-95' : ''}`}
+                  className={`bg-white dark:bg-slate-800 rounded-lg shadow-sm border border-slate-200 dark:border-slate-700 border-l-4 p-3 cursor-grab active:cursor-grabbing transition-all duration-150 hover:shadow-md hover:scale-[1.02] ${isOverdue(task) && task.status !== 'done' ? 'border-l-rose-500' : priorityBorder[task.priority]} ${draggedTaskId === task.id ? 'opacity-40 scale-95' : ''}`}
                   onDragStart={() => onDragStart(task)}
                   onDragEnd={onDragEnd}
                 >
@@ -138,6 +148,12 @@ export default function KanbanBoard() {
           </div>
         ))}
       </div>
+
+      {overdueTasks.length > 0 && (
+        <p className="mt-3 text-xs text-rose-500 dark:text-rose-400 text-center">
+          有 {overdueTasks.length} 项逾期任务已合并到待办列
+        </p>
+      )}
 
       <DeleteConfirmModal
         isOpen={!!deleteTarget}
