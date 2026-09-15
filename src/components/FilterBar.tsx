@@ -29,7 +29,7 @@ export default function FilterBar() {
   }
 
   const selectClass =
-    'px-2.5 py-1.5 text-xs rounded-lg border border-slate-200 dark:border-slate-600 bg-white dark:bg-slate-800 text-slate-600 dark:text-slate-300 outline-none focus:border-indigo-500 focus:ring-1 focus:ring-indigo-500/20 transition-colors'
+    'px-2.5 py-1.5 text-xs rounded-full border border-white/30 dark:border-white/10 bg-white/40 dark:bg-white/5 text-slate-600 dark:text-slate-300 outline-none focus:border-indigo-400/50 focus:ring-1 focus:ring-indigo-500/10 transition-colors backdrop-blur-sm'
 
   return (
     <div className="flex flex-wrap items-center gap-2 mb-4">
@@ -53,7 +53,7 @@ export default function FilterBar() {
           placeholder="搜索任务..."
           value={searchKeyword}
           onChange={(e) => setSearchKeyword(e.target.value)}
-          className="w-full pl-8 pr-3 py-1.5 text-xs rounded-lg border border-slate-200 dark:border-slate-600 bg-white dark:bg-slate-800 text-slate-700 dark:text-slate-200 placeholder-slate-400 dark:placeholder-slate-500 outline-none focus:border-indigo-500 focus:ring-1 focus:ring-indigo-500/20 transition-colors"
+          className="w-full pl-8 pr-3 py-1.5 text-xs rounded-full border border-white/30 dark:border-white/10 bg-white/40 dark:bg-white/5 text-slate-700 dark:text-slate-200 placeholder-slate-400/60 dark:placeholder-slate-500/60 outline-none focus:border-indigo-400/50 focus:ring-1 focus:ring-indigo-500/10 transition-colors backdrop-blur-sm"
         />
       </div>
 
@@ -97,7 +97,7 @@ export default function FilterBar() {
       {hasFilters && (
         <button
           onClick={clearAll}
-          className="flex items-center gap-1 px-2.5 py-1.5 text-xs font-medium text-slate-500 dark:text-slate-400 hover:text-indigo-600 dark:hover:text-indigo-400 hover:bg-indigo-50 dark:hover:bg-indigo-900/20 rounded-lg transition-colors"
+          className="flex items-center gap-1 px-2.5 py-1.5 text-xs font-medium text-slate-500/70 dark:text-slate-400/70 hover:text-indigo-600 dark:hover:text-indigo-400 hover:bg-indigo-500/10 rounded-full transition-colors"
         >
           <svg xmlns="http://www.w3.org/2000/svg" className="w-3 h-3" viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="2" strokeLinecap="round" strokeLinejoin="round">
             <line x1="18" y1="6" x2="6" y2="18" />

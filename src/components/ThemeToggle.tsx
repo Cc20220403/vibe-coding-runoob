@@ -6,7 +6,7 @@ export default function ThemeToggle() {
   return (
     <button
       onClick={toggle}
-      className="w-9 h-9 flex items-center justify-center rounded-lg bg-white/10 hover:bg-white/20 text-white transition-colors"
+      className="w-9 h-9 flex items-center justify-center rounded-full glass-card hover:shadow-glow-blue transition-all duration-300 text-slate-600 dark:text-slate-300"
       title={isDark ? '切换浅色模式' : '切换深色模式'}
     >
       {isDark ? (

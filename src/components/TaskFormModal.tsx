@@ -85,13 +85,13 @@ export default function TaskFormModal({ isOpen, onClose, editTask }: Props) {
   if (!isOpen) return null
 
   const inputClass =
-    'w-full px-3.5 py-2.5 rounded-lg border text-sm text-slate-800 dark:text-slate-100 placeholder-slate-400 dark:placeholder-slate-500 bg-white dark:bg-slate-900 outline-none transition-colors focus:border-indigo-500 focus:ring-2 focus:ring-indigo-500/20'
-  const borderClass = titleError ? 'border-rose-400' : 'border-slate-300 dark:border-slate-600'
+    'w-full px-3.5 py-2.5 rounded-xl border text-sm text-slate-800 dark:text-slate-100 placeholder-slate-400/60 dark:placeholder-slate-500/60 bg-white/50 dark:bg-white/5 outline-none transition-colors focus:border-indigo-400/50 focus:ring-2 focus:ring-indigo-500/10 backdrop-blur-sm'
+  const borderClass = titleError ? 'border-rose-400/60' : 'border-white/30 dark:border-white/10'
 
   return (
     <div className="fixed inset-0 z-50 flex items-center justify-center p-4 animate-fadeIn">
-      <div className="absolute inset-0 bg-black/40" onClick={onClose} />
-      <div className="relative bg-white dark:bg-slate-800 rounded-xl shadow-2xl w-full max-w-md p-6 z-10">
+      <div className="absolute inset-0 bg-black/20 backdrop-blur-sm" onClick={onClose} />
+      <div className="relative glass-card rounded-2xl w-full max-w-md p-6 z-10 shadow-xl">
         {/* 标题栏 */}
         <div className="flex items-center justify-between mb-6">
           <h2 className="text-lg font-semibold text-slate-800 dark:text-slate-100">
@@ -137,7 +137,7 @@ export default function TaskFormModal({ isOpen, onClose, editTask }: Props) {
               rows={3}
               maxLength={500}
               placeholder="请输入任务描述"
-              className={`${inputClass} border-slate-300 dark:border-slate-600 resize-none`}
+              className={`${inputClass} ${borderClass} resize-none`}
             />
           </div>
 
@@ -153,7 +153,7 @@ export default function TaskFormModal({ isOpen, onClose, editTask }: Props) {
               list="category-options"
               maxLength={30}
               placeholder="如：工作、学习、生活"
-              className={`${inputClass} border-slate-300 dark:border-slate-600`}
+              className={`${inputClass} ${borderClass}`}
             />
             <datalist id="category-options">
               {categories.map((cat) => (
@@ -169,7 +169,7 @@ export default function TaskFormModal({ isOpen, onClose, editTask }: Props) {
               <select
                 value={priority}
                 onChange={(e) => setPriority(e.target.value as TaskPriority)}
-                className={`${inputClass} border-slate-300 dark:border-slate-600`}
+                className={`${inputClass} ${borderClass}`}
               >
                 <option value="low">低</option>
                 <option value="medium">中</option>
@@ -182,7 +182,7 @@ export default function TaskFormModal({ isOpen, onClose, editTask }: Props) {
                 type="date"
                 value={dueDate}
                 onChange={(e) => setDueDate(e.target.value)}
-                className={`${inputClass} border-slate-300 dark:border-slate-600`}
+                className={`${inputClass} ${borderClass}`}
               />
             </div>
           </div>
@@ -191,14 +191,14 @@ export default function TaskFormModal({ isOpen, onClose, editTask }: Props) {
           <div className="flex items-center justify-end gap-3 pt-2">
             <button
               type="submit"
-              className="px-5 py-2 text-sm font-medium text-white bg-indigo-600 hover:bg-indigo-700 rounded-lg shadow-sm transition-colors"
+              className="px-5 py-2 text-sm font-medium text-white btn-gradient rounded-xl shadow-soft transition-all duration-300"
             >
               {editTask ? '保存' : '创建'}
             </button>
             <button
               type="button"
               onClick={onClose}
-              className="px-4 py-2 text-sm font-medium text-slate-600 dark:text-slate-400 hover:text-slate-800 dark:hover:text-slate-200 hover:bg-slate-100 dark:hover:bg-slate-700 rounded-lg transition-colors"
+              className="px-4 py-2 text-sm font-medium text-slate-600/80 dark:text-slate-400/80 hover:text-slate-800 dark:hover:text-slate-200 hover:bg-white/30 dark:hover:bg-white/10 rounded-xl transition-colors"
             >
               取消
             </button>

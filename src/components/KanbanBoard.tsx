@@ -1,13 +1,13 @@
 import { useState } from 'react'
 import type { Task, TaskStatus } from '../types/task'
-import { priorityBorder, priorityLabel, priorityBadge } from '../constants/task'
+import { priorityLabel } from '../constants/task'
 import { useTaskStore } from '../store/taskStore'
 import DeleteConfirmModal from './DeleteConfirmModal'
 
-const columns: { status: TaskStatus; label: string; color: string; bgColor: string }[] = [
-  { status: 'todo', label: '待办', color: 'text-slate-600 dark:text-slate-400', bgColor: 'bg-slate-50 dark:bg-slate-700' },
-  { status: 'in-progress', label: '进行中', color: 'text-amber-600 dark:text-amber-400', bgColor: 'bg-amber-50 dark:bg-amber-900/30' },
-  { status: 'done', label: '已完成', color: 'text-emerald-600 dark:text-emerald-400', bgColor: 'bg-emerald-50 dark:bg-emerald-900/30' },
+const columns: { status: TaskStatus; label: string; color: string; glow: string }[] = [
+  { status: 'todo', label: '待办', color: 'text-slate-600 dark:text-slate-300', glow: 'shadow-glow-blue' },
+  { status: 'in-progress', label: '进行中', color: 'text-amber-600 dark:text-amber-400', glow: 'shadow-glow-amber' },
+  { status: 'done', label: '已完成', color: 'text-emerald-600 dark:text-emerald-400', glow: 'shadow-glow-emerald' },
 ]
 
 export default function KanbanBoard() {
@@ -65,13 +65,13 @@ export default function KanbanBoard() {
         {columns.map((col) => (
           <div
             key={col.status}
-            className={`rounded-xl border-2 transition-colors duration-150 ${dragOverColumn === col.status ? 'border-indigo-300 dark:border-indigo-500 bg-indigo-50/50 dark:bg-indigo-900/20' : 'border-transparent'}`}
+            className={`glass-card rounded-2xl transition-all duration-150 ${dragOverColumn === col.status ? 'shadow-glow-purple scale-[1.01]' : ''}`}
           >
             {/* 列头 */}
             <div className="flex items-center justify-between px-4 py-3">
               <div className="flex items-center gap-2">
                 <h3 className={`text-sm font-semibold ${col.color}`}>{col.label}</h3>
-                <span className={`inline-flex items-center justify-center w-5 h-5 rounded-full text-xs font-medium ${col.bgColor} ${col.color}`}>
+                <span className={`inline-flex items-center justify-center w-5 h-5 rounded-full text-xs font-medium bg-white/40 dark:bg-white/10 ${col.color}`}>
                   {getTasksByStatus(col.status).length}
                 </span>
               </div>
@@ -88,7 +88,7 @@ export default function KanbanBoard() {
                 <div
                   key={task.id}
                   draggable
-                  className={`bg-white dark:bg-slate-800 rounded-lg shadow-sm border border-slate-200 dark:border-slate-700 border-l-4 p-3 cursor-grab active:cursor-grabbing transition-all duration-150 hover:shadow-md hover:scale-[1.02] ${isOverdue(task) && task.status !== 'done' ? 'border-l-rose-500' : priorityBorder[task.priority]} ${draggedTaskId === task.id ? 'opacity-40 scale-95' : ''}`}
+                  className={`glass-card rounded-xl p-3 cursor-grab active:cursor-grabbing transition-all duration-150 hover:scale-[1.02] hover:shadow-glow-blue ${isOverdue(task) && task.status !== 'done' ? 'border-l-3 border-l-rose-500/60' : `border-l-3 border-l-transparent`} ${draggedTaskId === task.id ? 'opacity-40 scale-95' : ''}`}
                   onDragStart={() => onDragStart(task)}
                   onDragEnd={onDragEnd}
                 >
@@ -99,7 +99,7 @@ export default function KanbanBoard() {
                     </h4>
                     <button
                       onClick={() => setDeleteTarget(task)}
-                      className="shrink-0 w-5 h-5 flex items-center justify-center rounded-full text-slate-300 dark:text-slate-600 hover:text-rose-500 hover:bg-rose-50 dark:hover:bg-rose-900/30 transition-colors"
+                      className="shrink-0 w-5 h-5 flex items-center justify-center rounded-full text-slate-300/60 dark:text-slate-600/60 hover:text-rose-500 hover:bg-rose-500/10 transition-colors"
                       title="删除"
                     >
                       <svg xmlns="http://www.w3.org/2000/svg" className="w-3 h-3" viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="2.5" strokeLinecap="round" strokeLinejoin="round">
@@ -117,11 +117,11 @@ export default function KanbanBoard() {
                   {/* 底部信息 */}
                   <div className="flex items-center justify-between mt-2.5 flex-wrap gap-1">
                     <div className="flex items-center gap-1.5">
-                      <span className={`inline-flex items-center px-1.5 py-0.5 rounded text-[11px] font-medium ${priorityBadge[task.priority]}`}>
+                      <span className={`inline-flex items-center px-1.5 py-0.5 rounded-full text-[11px] font-medium bg-white/30 dark:bg-white/10 ${col.color}`}>
                         {priorityLabel[task.priority]}
                       </span>
                       {task.category && (
-                        <span className="inline-flex items-center px-1.5 py-0.5 rounded text-[11px] font-medium bg-indigo-50 text-indigo-600 dark:bg-indigo-900/30 dark:text-indigo-400">
+                        <span className="inline-flex items-center px-1.5 py-0.5 rounded-full text-[11px] font-medium bg-indigo-500/10 text-indigo-600/80 dark:text-indigo-400/80">
                           {task.category}
                         </span>
                       )}
@@ -140,7 +140,7 @@ export default function KanbanBoard() {
 
               {/* 空列提示 */}
               {getTasksByStatus(col.status).length === 0 && (
-                <div className="flex-1 flex items-center justify-center text-xs text-slate-300 dark:text-slate-600 py-8">
+                <div className="flex-1 flex items-center justify-center text-xs text-slate-400/40 dark:text-slate-600/40 py-8">
                   拖拽任务到此处
                 </div>
               )}

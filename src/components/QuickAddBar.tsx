@@ -39,10 +39,10 @@ export default function QuickAddBar() {
   }
 
   const inputClass =
-    'px-3 py-2.5 text-sm rounded-lg border border-slate-300 dark:border-slate-600 bg-white dark:bg-slate-800 text-slate-700 dark:text-slate-200 placeholder-slate-400 dark:placeholder-slate-500 outline-none focus:border-indigo-500 focus:ring-2 focus:ring-indigo-500/20 transition-colors'
+    'px-3 py-2.5 text-sm rounded-xl border border-white/30 dark:border-white/10 bg-white/40 dark:bg-white/5 text-slate-700 dark:text-slate-200 placeholder-slate-400/60 dark:placeholder-slate-500/60 outline-none focus:border-indigo-400/50 focus:ring-2 focus:ring-indigo-500/10 transition-colors backdrop-blur-sm'
 
   return (
-    <div className="bg-white dark:bg-slate-800 rounded-xl shadow-sm border border-slate-200 dark:border-slate-700 p-4 mb-4">
+    <div className="glass-card rounded-2xl p-4 mb-4">
       <div className="flex items-center gap-3 flex-wrap">
         {/* 标题输入 */}
         <input
@@ -51,7 +51,7 @@ export default function QuickAddBar() {
           onChange={(e) => setTitle(e.target.value)}
           onKeyDown={handleKeyDown}
           placeholder="输入任务内容..."
-          className="flex-1 min-w-[200px] px-3.5 py-2.5 text-sm rounded-lg border border-slate-300 dark:border-slate-600 bg-slate-50 dark:bg-slate-900 text-slate-800 dark:text-slate-100 placeholder-slate-400 dark:placeholder-slate-500 outline-none focus:border-indigo-500 focus:ring-2 focus:ring-indigo-500/20 transition-colors"
+          className="flex-1 min-w-[200px] px-3.5 py-2.5 text-sm rounded-xl border border-white/30 dark:border-white/10 bg-white/50 dark:bg-white/5 text-slate-800 dark:text-slate-100 placeholder-slate-400/60 dark:placeholder-slate-500/60 outline-none focus:border-indigo-400/50 focus:ring-2 focus:ring-indigo-500/10 transition-colors backdrop-blur-sm"
         />
 
         {/* 分类下拉 */}
@@ -81,7 +81,7 @@ export default function QuickAddBar() {
         <button
           onClick={handleAdd}
           disabled={!title.trim()}
-          className="flex items-center gap-1.5 px-5 py-2.5 text-sm font-medium text-white bg-indigo-600 hover:bg-indigo-700 disabled:bg-slate-300 dark:disabled:bg-slate-600 disabled:cursor-not-allowed rounded-lg shadow-sm transition-colors"
+          className="flex items-center gap-1.5 px-5 py-2.5 text-sm font-medium text-white btn-gradient disabled:opacity-40 disabled:cursor-not-allowed rounded-xl shadow-soft transition-all duration-300"
         >
           <svg xmlns="http://www.w3.org/2000/svg" className="w-4 h-4" viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="2.5" strokeLinecap="round" strokeLinejoin="round">
             <line x1="12" y1="5" x2="12" y2="19" />

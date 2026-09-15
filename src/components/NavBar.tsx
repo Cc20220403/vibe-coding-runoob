@@ -6,15 +6,15 @@ export default function NavBar() {
   const isHome = location.pathname === '/'
 
   return (
-    <nav className="bg-indigo-600 shadow-lg sticky top-0 z-40">
-      <div className="max-w-5xl mx-auto px-6 py-4 flex items-center justify-between">
-        <Link to="/" className="text-xl font-bold text-white tracking-wide hover:opacity-90 transition-opacity">
+    <nav className="glass sticky top-0 z-50 border-b border-white/20 dark:border-white/5">
+      <div className="max-w-5xl mx-auto px-6 py-3.5 flex items-center justify-between">
+        <Link to="/" className="text-xl font-bold text-gradient tracking-wide hover:opacity-80 transition-opacity">
           智能看板
         </Link>
         <div className="flex items-center gap-3">
           <Link
             to={isHome ? '/tasks' : '/'}
-            className="flex items-center gap-1.5 px-4 py-2 text-sm font-medium text-indigo-600 bg-white rounded-lg hover:bg-indigo-50 dark:hover:bg-indigo-100 transition-colors shadow-sm"
+            className="flex items-center gap-1.5 px-4 py-2 text-sm font-medium rounded-full glass-card hover:shadow-glow-blue transition-all duration-300 text-slate-700 dark:text-slate-200"
           >
             {isHome ? (
               <>

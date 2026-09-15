@@ -69,7 +69,7 @@ export default function TaskListPage() {
   }
 
   return (
-    <div className="min-h-screen bg-slate-50 dark:bg-slate-900 transition-colors">
+    <div className="min-h-screen transition-colors">
       <NavBar />
 
       <main className="max-w-5xl mx-auto px-6 py-8">
@@ -82,10 +82,10 @@ export default function TaskListPage() {
 
           <div className="flex items-center gap-3">
             {/* 视图切换 */}
-            <div className="flex items-center gap-1 bg-white dark:bg-slate-800 rounded-lg p-1 shadow-sm border border-slate-200 dark:border-slate-700">
+            <div className="flex items-center gap-1 glass-card rounded-xl p-1">
               <button
                 onClick={() => setView('list')}
-                className={`flex items-center gap-1 px-3 py-1.5 text-xs font-medium rounded-md transition-colors ${view === 'list' ? 'bg-indigo-600 text-white shadow-sm' : 'text-slate-500 dark:text-slate-400 hover:text-slate-700 dark:hover:text-slate-200'}`}
+                className={`flex items-center gap-1 px-3 py-1.5 text-xs font-medium rounded-lg transition-colors ${view === 'list' ? 'bg-gradient-to-r from-indigo-500 to-purple-500 text-white shadow-sm' : 'text-slate-500/70 dark:text-slate-400/70 hover:text-slate-700 dark:hover:text-slate-200 hover:bg-white/30 dark:hover:bg-white/10'}`}
               >
                 <svg xmlns="http://www.w3.org/2000/svg" className="w-3.5 h-3.5" viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="2" strokeLinecap="round" strokeLinejoin="round">
                   <line x1="8" y1="6" x2="21" y2="6" />
@@ -99,7 +99,7 @@ export default function TaskListPage() {
               </button>
               <button
                 onClick={() => setView('kanban')}
-                className={`flex items-center gap-1 px-3 py-1.5 text-xs font-medium rounded-md transition-colors ${view === 'kanban' ? 'bg-indigo-600 text-white shadow-sm' : 'text-slate-500 dark:text-slate-400 hover:text-slate-700 dark:hover:text-slate-200'}`}
+                className={`flex items-center gap-1 px-3 py-1.5 text-xs font-medium rounded-lg transition-colors ${view === 'kanban' ? 'bg-gradient-to-r from-indigo-500 to-purple-500 text-white shadow-sm' : 'text-slate-500/70 dark:text-slate-400/70 hover:text-slate-700 dark:hover:text-slate-200 hover:bg-white/30 dark:hover:bg-white/10'}`}
               >
                 <svg xmlns="http://www.w3.org/2000/svg" className="w-3.5 h-3.5" viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="2" strokeLinecap="round" strokeLinejoin="round">
                   <rect x="3" y="3" width="7" height="18" rx="1" />
@@ -112,7 +112,7 @@ export default function TaskListPage() {
             {/* 新建任务按钮 */}
             <button
               onClick={() => { setEditTask(null); setShowModal(true) }}
-              className="flex items-center gap-1.5 px-4 py-2 text-xs font-medium text-white bg-indigo-600 hover:bg-indigo-700 rounded-lg shadow-sm transition-colors"
+              className="flex items-center gap-1.5 px-4 py-2 text-xs font-medium text-white btn-gradient rounded-xl shadow-soft transition-all duration-300"
             >
               <svg xmlns="http://www.w3.org/2000/svg" className="w-3.5 h-3.5" viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="2.5" strokeLinecap="round" strokeLinejoin="round">
                 <line x1="12" y1="5" x2="12" y2="19" />

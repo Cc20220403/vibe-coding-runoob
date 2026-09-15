@@ -5,6 +5,18 @@ import TaskBubble from '../components/TaskBubble'
 import { format } from 'date-fns'
 import { zhCN } from 'date-fns/locale'
 
+// 装饰性小气泡
+const decoBubbles = [
+  { size: 20, x: '10%', y: '20%', delay: 0, duration: 8, opacity: 0.3 },
+  { size: 14, x: '85%', y: '15%', delay: 2, duration: 10, opacity: 0.25 },
+  { size: 18, x: '75%', y: '70%', delay: 1, duration: 9, opacity: 0.2 },
+  { size: 12, x: '20%', y: '75%', delay: 3, duration: 11, opacity: 0.2 },
+  { size: 16, x: '50%', y: '10%', delay: 4, duration: 7, opacity: 0.15 },
+  { size: 10, x: '90%', y: '50%', delay: 1.5, duration: 12, opacity: 0.2 },
+  { size: 22, x: '5%', y: '50%', delay: 2.5, duration: 9, opacity: 0.15 },
+  { size: 8, x: '60%', y: '85%', delay: 0.5, duration: 10, opacity: 0.2 },
+]
+
 export default function HomePage() {
   const tasks = useTaskStore((s) => s.tasks)
 
@@ -26,21 +38,43 @@ export default function HomePage() {
   const dateLabel = format(new Date(), 'M月d日 EEEE', { locale: zhCN })
 
   return (
-    <div className="min-h-screen bg-slate-50 dark:bg-slate-900 transition-colors">
+    <div className="min-h-screen relative overflow-hidden">
       <NavBar />
 
-      <main className="max-w-5xl mx-auto px-6 py-8">
+      {/* 装饰气泡 */}
+      <div className="fixed inset-0 pointer-events-none z-0">
+        {decoBubbles.map((b, i) => (
+          <div
+            key={i}
+            className="absolute rounded-full animate-bubble-float"
+            style={{
+              width: b.size,
+              height: b.size,
+              left: b.x,
+              top: b.y,
+              opacity: b.opacity,
+              background: 'radial-gradient(circle at 35% 30%, rgba(255,255,255,0.8) 0%, rgba(200,200,255,0.3) 100%)',
+              boxShadow: '0 2px 12px rgba(150,150,255,0.15)',
+              animationDelay: `${b.delay}s`,
+              animationDuration: `${b.duration}s`,
+              border: '1px solid rgba(255,255,255,0.3)',
+            }}
+          />
+        ))}
+      </div>
+
+      <main className="relative z-10 max-w-5xl mx-auto px-6 py-8">
         <div className="mb-8">
-          <h1 className="text-2xl font-bold text-slate-800 dark:text-slate-100 mb-1">
+          <h1 className="text-3xl font-bold text-gradient mb-2">
             今日待办
           </h1>
-          <p className="text-sm text-slate-500 dark:text-slate-400">
+          <p className="text-sm text-slate-600/70 dark:text-slate-300/70">
             {dateLabel} · {todayTasks.length > 0 ? `还有 ${todayTasks.length} 项任务等你完成` : '今天没有待办任务，享受清闲吧'}
           </p>
         </div>
 
         {todayTasks.length > 0 ? (
-          <div className="relative min-h-[400px] flex flex-wrap items-center justify-center gap-6 p-8">
+          <div className="relative min-h-[450px] flex flex-wrap items-center justify-center gap-8 p-8">
             {todayTasks.map((task) => (
               <TaskBubble
                 key={task.id}
@@ -51,25 +85,25 @@ export default function HomePage() {
           </div>
         ) : (
           <div className="flex flex-col items-center justify-center py-20">
-            <div className="w-20 h-20 rounded-full bg-indigo-100 dark:bg-indigo-900/30 flex items-center justify-center mb-4">
-              <svg xmlns="http://www.w3.org/2000/svg" className="w-10 h-10 text-indigo-400" viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="1.5" strokeLinecap="round" strokeLinejoin="round">
+            <div className="w-24 h-24 rounded-full glass-card flex items-center justify-center mb-6 shadow-glow-purple">
+              <svg xmlns="http://www.w3.org/2000/svg" className="w-12 h-12 text-indigo-400 dark:text-indigo-300" viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="1.5" strokeLinecap="round" strokeLinejoin="round">
                 <path d="M22 11.08V12a10 10 0 1 1-5.93-9.14" />
                 <polyline points="22 4 12 14.01 9 11.01" />
               </svg>
             </div>
-            <p className="text-slate-500 dark:text-slate-400 text-center">
+            <p className="text-slate-600/80 dark:text-slate-300/80 text-center text-base">
               {stats.total === 0 ? '还没有创建任何任务，去管理页面创建吧' : '今日任务已全部完成'}
             </p>
             {stats.total > 0 && (
-              <p className="text-sm text-slate-400 dark:text-slate-500 mt-2">
-                完成率 {stats.completionRate}%
+              <p className="text-sm text-slate-500/60 dark:text-slate-400/60 mt-3">
+                完成率 <span className="font-semibold text-indigo-500 dark:text-indigo-400">{stats.completionRate}%</span>
               </p>
             )}
           </div>
         )}
 
         {todayTasks.length > 0 && (
-          <p className="text-center text-xs text-slate-400 dark:text-slate-500 mt-8">
+          <p className="text-center text-xs text-slate-500/50 dark:text-slate-400/50 mt-8">
             点击气泡即可完成任务
           </p>
         )}

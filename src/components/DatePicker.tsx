@@ -95,10 +95,10 @@ export default function DatePicker() {
   return (
     <div className="flex items-center gap-3">
       {/* 日期导航 */}
-      <div className="flex items-center gap-2 bg-white dark:bg-slate-800 rounded-xl px-4 py-2.5 shadow-sm border border-slate-200 dark:border-slate-700">
+      <div className="flex items-center gap-2 glass-card rounded-2xl px-4 py-2.5">
         <button
           onClick={goToPrevDay}
-          className="w-7 h-7 flex items-center justify-center rounded-lg text-slate-500 dark:text-slate-400 hover:bg-slate-100 dark:hover:bg-slate-700 transition-colors"
+          className="w-7 h-7 flex items-center justify-center rounded-lg text-slate-500/70 dark:text-slate-400/70 hover:bg-white/30 dark:hover:bg-white/10 transition-colors"
           title="前一天"
         >
           <svg xmlns="http://www.w3.org/2000/svg" className="w-4 h-4" viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="2" strokeLinecap="round" strokeLinejoin="round">
@@ -108,12 +108,12 @@ export default function DatePicker() {
 
         <button
           onClick={() => setShowCalendar(!showCalendar)}
-          className="flex items-center gap-2 px-2 py-1 rounded-lg hover:bg-slate-50 dark:hover:bg-slate-700 transition-colors"
+          className="flex items-center gap-2 px-2 py-1 rounded-lg hover:bg-white/30 dark:hover:bg-white/10 transition-colors"
           title="选择日期"
         >
           <span className="text-sm font-semibold text-slate-800 dark:text-slate-100">{dateLabel}</span>
           {!isToday && (
-            <span className="inline-flex items-center px-1.5 py-0.5 rounded text-[10px] font-medium bg-amber-50 text-amber-600 dark:bg-amber-900/30 dark:text-amber-400">
+            <span className="inline-flex items-center px-1.5 py-0.5 rounded text-[10px] font-medium bg-amber-500/10 text-amber-600 dark:text-amber-400 border border-amber-300/20 dark:border-amber-500/10">
               非今日
             </span>
           )}
@@ -121,7 +121,7 @@ export default function DatePicker() {
 
         <button
           onClick={goToNextDay}
-          className="w-7 h-7 flex items-center justify-center rounded-lg text-slate-500 dark:text-slate-400 hover:bg-slate-100 dark:hover:bg-slate-700 transition-colors"
+          className="w-7 h-7 flex items-center justify-center rounded-lg text-slate-500/70 dark:text-slate-400/70 hover:bg-white/30 dark:hover:bg-white/10 transition-colors"
           title="后一天"
         >
           <svg xmlns="http://www.w3.org/2000/svg" className="w-4 h-4" viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="2" strokeLinecap="round" strokeLinejoin="round">
@@ -134,7 +134,7 @@ export default function DatePicker() {
       {!isToday && (
         <button
           onClick={goToToday}
-          className="flex items-center gap-1 px-3 py-2 text-xs font-medium text-indigo-600 dark:text-indigo-400 bg-indigo-50 dark:bg-indigo-900/20 rounded-lg hover:bg-indigo-100 dark:hover:bg-indigo-900/40 transition-colors"
+          className="flex items-center gap-1 px-3 py-2 text-xs font-medium text-indigo-600 dark:text-indigo-400 bg-indigo-500/10 dark:bg-indigo-500/15 rounded-full hover:bg-indigo-500/20 transition-colors border border-indigo-300/20 dark:border-indigo-500/10"
         >
           <svg xmlns="http://www.w3.org/2000/svg" className="w-3.5 h-3.5" viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="2" strokeLinecap="round" strokeLinejoin="round">
             <rect x="3" y="4" width="18" height="18" rx="2" ry="2" />
@@ -148,12 +148,12 @@ export default function DatePicker() {
 
       {/* 日历面板 */}
       {showCalendar && (
-        <div ref={panelRef} className="absolute top-full mt-2 z-50 bg-white dark:bg-slate-800 rounded-xl shadow-xl border border-slate-200 dark:border-slate-700 p-4 w-72">
+        <div ref={panelRef} className="absolute top-full mt-2 z-50 glass-card rounded-2xl p-4 w-72 shadow-xl">
           {/* 月份导航 */}
           <div className="flex items-center justify-between mb-3">
             <button
               onClick={goToPrevMonth}
-              className="w-7 h-7 flex items-center justify-center rounded-lg text-slate-500 hover:bg-slate-100 dark:hover:bg-slate-700 transition-colors"
+              className="w-7 h-7 flex items-center justify-center rounded-lg text-slate-500/70 hover:bg-white/30 dark:hover:bg-white/10 transition-colors"
             >
               <svg xmlns="http://www.w3.org/2000/svg" className="w-4 h-4" viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="2" strokeLinecap="round" strokeLinejoin="round">
                 <polyline points="15 18 9 12 15 6" />
@@ -164,7 +164,7 @@ export default function DatePicker() {
             </span>
             <button
               onClick={goToNextMonth}
-              className="w-7 h-7 flex items-center justify-center rounded-lg text-slate-500 hover:bg-slate-100 dark:hover:bg-slate-700 transition-colors"
+              className="w-7 h-7 flex items-center justify-center rounded-lg text-slate-500/70 hover:bg-white/30 dark:hover:bg-white/10 transition-colors"
             >
               <svg xmlns="http://www.w3.org/2000/svg" className="w-4 h-4" viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="2" strokeLinecap="round" strokeLinejoin="round">
                 <polyline points="9 18 15 12 9 6" />
@@ -175,7 +175,7 @@ export default function DatePicker() {
           {/* 星期头 */}
           <div className="grid grid-cols-7 gap-0.5 mb-1">
             {weekDays.map((d) => (
-              <div key={d} className="text-center text-[11px] font-medium text-slate-400 dark:text-slate-500 py-1">
+              <div key={d} className="text-center text-[11px] font-medium text-slate-400/60 dark:text-slate-500/60 py-1">
                 {d}
               </div>
             ))}
@@ -192,9 +192,9 @@ export default function DatePicker() {
                   onClick={() => selectCalendarDay(date)}
                   className={`w-8 h-8 flex items-center justify-center rounded-lg text-xs font-medium transition-colors
                     ${!isCurrentMonth ? 'text-slate-300 dark:text-slate-600' : ''}
-                    ${isSelected ? 'bg-indigo-600 text-white' : ''}
-                    ${!isSelected && isCurrentMonth && isTodayCell ? 'bg-indigo-50 dark:bg-indigo-900/30 text-indigo-600 dark:text-indigo-400 font-bold' : ''}
-                    ${!isSelected && isCurrentMonth && !isTodayCell ? 'text-slate-700 dark:text-slate-200 hover:bg-slate-100 dark:hover:bg-slate-700' : ''}
+                    ${isSelected ? 'bg-gradient-to-r from-indigo-500 to-purple-500 text-white shadow-sm' : ''}
+                    ${!isSelected && isCurrentMonth && isTodayCell ? 'bg-white/40 dark:bg-white/10 text-indigo-600 dark:text-indigo-400 font-bold ring-1 ring-indigo-400/30' : ''}
+                    ${!isSelected && isCurrentMonth && !isTodayCell ? 'text-slate-700 dark:text-slate-200 hover:bg-white/30 dark:hover:bg-white/10' : ''}
                   `}
                 >
                   {format(date, 'd')}
@@ -206,7 +206,7 @@ export default function DatePicker() {
           {/* 今天快捷按钮 */}
           <button
             onClick={goToToday}
-            className="w-full mt-3 py-1.5 text-xs font-medium text-indigo-600 dark:text-indigo-400 bg-indigo-50 dark:bg-indigo-900/20 rounded-lg hover:bg-indigo-100 dark:hover:bg-indigo-900/40 transition-colors"
+            className="w-full mt-3 py-1.5 text-xs font-medium text-indigo-600 dark:text-indigo-400 bg-indigo-500/10 dark:bg-indigo-500/15 rounded-full hover:bg-indigo-500/20 transition-colors"
           >
             回到今天
           </button>
