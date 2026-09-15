@@ -51,39 +51,23 @@ function dropPath(w: number, h: number): string {
   ].join(' ')
 }
 
-// 生成爆裂碎片数据（从中心向四周飞散的不规则弧面碎片）
-function genFragments(count: number) {
-  return Array.from({ length: count }, (_, i) => {
-    const angle = (i / count) * Math.PI * 2 + (Math.random() - 0.5) * 0.8
-    const dist = 35 + Math.random() * 55
-    return {
-      tx: Math.cos(angle) * dist,
-      ty: Math.sin(angle) * dist,
-      rot: (Math.random() - 0.5) * 720,
-      w: 5 + Math.random() * 10,
-      h: 3 + Math.random() * 6,
-      delay: Math.random() * 0.03,
-    }
-  })
-}
-
-// 生成散射粒子（更多更远）
-function genParticles(count: number) {
-  const animId = `sp${Date.now()}`
+// 生成细微水雾粒子（肥皂泡破裂后的微小水滴）
+function genMist(count: number) {
+  const animId = `m${Date.now()}`
   const items = Array.from({ length: count }, (_, i) => {
-    const angle = (i / count) * Math.PI * 2 + (Math.random() - 0.5) * 1.0
-    const dist = 30 + Math.random() * 70
+    const angle = (i / count) * Math.PI * 2 + (Math.random() - 0.5) * 0.8
+    const dist = 12 + Math.random() * 28
     return {
       dx: Math.cos(angle) * dist,
       dy: Math.sin(angle) * dist,
-      size: 2 + Math.random() * 5,
-      delay: Math.random() * 0.04,
+      size: 1.5 + Math.random() * 2.5,
+      delay: Math.random() * 0.02,
     }
   })
   const kf = items
     .map(
       (p, i) =>
-        `@keyframes ${animId}_${i}{0%{transform:translate(0,0) scale(1);opacity:.9}100%{transform:translate(${p.dx}px,${p.dy}px) scale(0);opacity:0}}`
+        `@keyframes ${animId}_${i}{0%{transform:translate(0,0) scale(1);opacity:.65}100%{transform:translate(${p.dx}px,${p.dy}px) scale(0);opacity:0}}`
     )
     .join('')
   return { items, animId, kf }
@@ -102,8 +86,7 @@ export default function TaskBubble({ task, onComplete }: Props) {
     return { delay, duration, name }
   }, [])
 
-  const fragments = useMemo(() => (popping ? genFragments(14) : null), [popping])
-  const scatter = useMemo(() => (popping ? genParticles(20) : null), [popping])
+  const mist = useMemo(() => (popping ? genMist(10) : null), [popping])
 
   const handleClick = () => {
     if (popping) return
@@ -111,7 +94,7 @@ export default function TaskBubble({ task, onComplete }: Props) {
     setTimeout(() => {
       toggleTask(task.id)
       onComplete(task.id)
-    }, 280)
+    }, 180)
   }
 
   const path = dropPath(size.w, size.h)
@@ -119,49 +102,43 @@ export default function TaskBubble({ task, onComplete }: Props) {
 
   return (
     <div className="relative inline-flex items-center justify-center">
-      {/* 爆裂效果层 */}
-      {popping && fragments && scatter && (
+      {/* 肥皂泡破裂效果 */}
+      {popping && mist && (
         <div className="absolute inset-0" style={{ pointerEvents: 'none' }}>
-          <style>{scatter.kf}</style>
+          <style>{mist.kf}</style>
 
-          {/* 环形闪光 */}
+          {/* 膜破裂环：肥皂泡薄膜从中心向四周扩散消失 */}
           <div
             className="absolute pointer-events-none rounded-full"
             style={{
               left: '50%',
               top: '50%',
-              width: size.w * 0.7,
-              height: size.w * 0.7,
-              background: `radial-gradient(circle, rgba(255,255,255,0.95) 0%, ${style.glow} 40%, transparent 70%)`,
-              animation: 'ring-flash 0.15s ease-out forwards',
+              width: size.w * 0.85,
+              height: size.h * 0.85,
+              border: `2px solid rgba(255,255,255,0.7)`,
+              boxShadow: `0 0 10px 3px rgba(255,255,255,0.25), inset 0 0 6px rgba(255,255,255,0.15)`,
+              animation: 'film-burst 0.22s ease-out forwards',
             }}
           />
 
-          {/* 弧面碎片（像水滴破裂的碎片） */}
-          {fragments.map((f, i) => (
-            <div
-              key={`f${i}`}
-              className="absolute pointer-events-none"
-              style={{
-                left: '50%',
-                top: '50%',
-                width: f.w,
-                height: f.h,
-                borderRadius: '45% 55% 40% 60%',
-                background: style.edge,
-                boxShadow: `0 0 4px ${style.glow}`,
-                '--tx': `${f.tx}px`,
-                '--ty': `${f.ty}px`,
-                '--rot': `${f.rot}deg`,
-                animation: `frag-fly 0.3s ease-out ${f.delay}s forwards`,
-              } as React.CSSProperties}
-            />
-          ))}
+          {/* 中心闪白（光在薄膜破裂时的闪烁） */}
+          <div
+            className="absolute pointer-events-none rounded-full"
+            style={{
+              left: '50%',
+              top: '45%',
+              width: size.w * 0.3,
+              height: size.w * 0.3,
+              transform: 'translate(-50%, -50%)',
+              background: 'radial-gradient(circle, rgba(255,255,255,0.9) 0%, rgba(255,255,255,0) 70%)',
+              animation: 'pop-flash 0.12s ease-out forwards',
+            }}
+          />
 
-          {/* 散射水滴粒子 */}
-          {scatter.items.map((p, i) => (
+          {/* 细微水雾粒子 */}
+          {mist.items.map((p, i) => (
             <div
-              key={`p${i}`}
+              key={i}
               className="absolute pointer-events-none"
               style={{
                 left: '50%',
@@ -169,46 +146,31 @@ export default function TaskBubble({ task, onComplete }: Props) {
                 width: p.size,
                 height: p.size,
                 borderRadius: '50%',
-                background: style.glow,
-                animation: `${scatter.animId}_${i} 0.3s ease-out ${p.delay}s forwards`,
+                background: 'rgba(255,255,255,0.7)',
+                animation: `${mist.animId}_${i} 0.22s ease-out ${p.delay}s forwards`,
               }}
             />
           ))}
 
-          {/* 涟漪环 1 */}
+          {/* 涟漪环 */}
           <div
             className="absolute pointer-events-none"
             style={{
               left: '50%',
               top: '55%',
-              width: size.w * 0.5,
-              height: size.w * 0.5,
+              width: size.w * 0.4,
+              height: size.w * 0.4,
               transform: 'translate(-50%, -50%)',
               borderRadius: '50%',
-              border: `2px solid ${style.glow}`,
-              animation: 'pop-ripple 0.35s ease-out forwards',
-            }}
-          />
-
-          {/* 涟漪环 2 */}
-          <div
-            className="absolute pointer-events-none"
-            style={{
-              left: '50%',
-              top: '55%',
-              width: size.w * 0.35,
-              height: size.w * 0.35,
-              transform: 'translate(-50%, -50%)',
-              borderRadius: '50%',
-              border: `1.5px solid ${style.glow}`,
-              animation: 'pop-ripple 0.35s ease-out 0.04s forwards',
+              border: `1px solid ${style.glow}`,
+              animation: 'pop-ripple 0.28s ease-out 0.02s forwards',
               opacity: 0,
             }}
           />
         </div>
       )}
 
-      {/* 雨滴主体 */}
+      {/* 肥皂泡主体 */}
       <button
         onClick={handleClick}
         disabled={popping}
@@ -219,7 +181,7 @@ export default function TaskBubble({ task, onComplete }: Props) {
           width: size.w,
           height: size.h,
           animationDelay: popping ? '0s' : `${anim.delay}s`,
-          animationDuration: popping ? '0.24s' : `${anim.duration}s`,
+          animationDuration: popping ? '0.1s' : `${anim.duration}s`,
           filter: `drop-shadow(0 6px 20px ${style.glow})`,
         }}
         title={`点击完成: ${task.title}`}
