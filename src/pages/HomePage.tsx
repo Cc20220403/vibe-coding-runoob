@@ -56,12 +56,6 @@ export default function HomePage() {
     return map
   }, [todayTasks])
 
-  const stats = useMemo(() => {
-    const total = tasks.length
-    const done = tasks.filter((t) => t.status === 'done').length
-    return { total, completionRate: total > 0 ? Math.round((done / total) * 100) : 0 }
-  }, [tasks])
-
   const dateLabel = format(new Date(), 'M月d日 EEEE', { locale: zhCN })
 
   return (
@@ -152,13 +146,8 @@ export default function HomePage() {
               </svg>
             </div>
             <p className="text-slate-600/80 dark:text-slate-300/80 text-center text-base">
-              {stats.total === 0 ? '还没有创建任何任务，去管理页面创建吧' : '今日任务已全部完成'}
+              今日任务已全部完成
             </p>
-            {stats.total > 0 && (
-              <p className="text-sm text-slate-500/60 dark:text-slate-400/60 mt-3">
-                完成率 <span className="font-semibold text-indigo-500 dark:text-indigo-400">{stats.completionRate}%</span>
-              </p>
-            )}
           </div>
         )}
 

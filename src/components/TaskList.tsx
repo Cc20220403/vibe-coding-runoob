@@ -5,9 +5,12 @@ interface Props {
   tasks: Task[]
   overdueTasks: Task[]
   onEdit: (task: Task) => void
+  batchMode?: boolean
+  selectedIds?: Set<string>
+  onToggleSelect?: (id: string) => void
 }
 
-export default function TaskList({ tasks, overdueTasks, onEdit }: Props) {
+export default function TaskList({ tasks, overdueTasks, onEdit, batchMode, selectedIds, onToggleSelect }: Props) {
   const hasOverdue = overdueTasks.length > 0
   const hasToday = tasks.length > 0
 
@@ -40,7 +43,15 @@ export default function TaskList({ tasks, overdueTasks, onEdit }: Props) {
           </div>
           <div className="flex flex-col gap-2">
             {overdueTasks.map((task) => (
-              <TaskCard key={task.id} task={task} onEdit={onEdit} isOverdue />
+              <TaskCard
+                key={task.id}
+                task={task}
+                onEdit={onEdit}
+                isOverdue
+                batchMode={batchMode}
+                isSelected={selectedIds?.has(task.id)}
+                onToggleSelect={onToggleSelect}
+              />
             ))}
           </div>
         </div>
@@ -60,7 +71,14 @@ export default function TaskList({ tasks, overdueTasks, onEdit }: Props) {
           </div>
           <div className="flex flex-col gap-2">
             {tasks.map((task) => (
-              <TaskCard key={task.id} task={task} onEdit={onEdit} />
+              <TaskCard
+                key={task.id}
+                task={task}
+                onEdit={onEdit}
+                batchMode={batchMode}
+                isSelected={selectedIds?.has(task.id)}
+                onToggleSelect={onToggleSelect}
+              />
             ))}
           </div>
         </div>

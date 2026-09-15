@@ -2,12 +2,13 @@ import { useEffect } from 'react'
 
 interface Props {
   isOpen: boolean
-  taskTitle: string
+  taskTitle?: string
+  count?: number
   onConfirm: () => void
   onCancel: () => void
 }
 
-export default function DeleteConfirmModal({ isOpen, taskTitle, onConfirm, onCancel }: Props) {
+export default function DeleteConfirmModal({ isOpen, taskTitle, count, onConfirm, onCancel }: Props) {
   // ESC 键关闭
   useEffect(() => {
     if (!isOpen) return
@@ -26,7 +27,10 @@ export default function DeleteConfirmModal({ isOpen, taskTitle, onConfirm, onCan
       <div className="relative glass-card rounded-2xl w-full max-w-sm p-6 z-10 shadow-xl">
         <h3 className="text-base font-semibold text-slate-800 dark:text-slate-100 mb-2">确认删除</h3>
         <p className="text-sm text-slate-500 dark:text-slate-400 mb-5">
-          确定要删除任务「<span className="font-medium text-slate-700 dark:text-slate-200">{taskTitle}</span>」吗？此操作不可撤销。
+          {count
+            ? <>确定要删除选中的 <span className="font-medium text-slate-700 dark:text-slate-200">{count}</span> 个任务吗？此操作不可撤销。</>
+            : <>确定要删除任务「<span className="font-medium text-slate-700 dark:text-slate-200">{taskTitle}</span>」吗？此操作不可撤销。</>
+          }
         </p>
         <div className="flex items-center justify-end gap-3">
           <button

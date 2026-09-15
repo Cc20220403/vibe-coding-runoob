@@ -38,7 +38,7 @@ export default function TaskFormModal({ isOpen, onClose, editTask }: Props) {
         setDescription('')
         setCategory('')
         setPriority('medium')
-        setDueDate('')
+        setDueDate(new Date().toISOString().split('T')[0])
       }
       setTitleError('')
     }

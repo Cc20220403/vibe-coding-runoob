@@ -8,6 +8,9 @@ interface Props {
   task: Task
   onEdit: (task: Task) => void
   isOverdue?: boolean
+  batchMode?: boolean
+  isSelected?: boolean
+  onToggleSelect?: (id: string) => void
 }
 
 const priorityDot: Record<string, string> = {
@@ -22,7 +25,7 @@ const priorityGlow: Record<string, string> = {
   low: 'shadow-soft',
 }
 
-export default function TaskCard({ task, onEdit, isOverdue }: Props) {
+export default function TaskCard({ task, onEdit, isOverdue, batchMode, isSelected, onToggleSelect }: Props) {
   const toggleTask = useTaskStore((s) => s.toggleTask)
   const deleteTask = useTaskStore((s) => s.deleteTask)
   const [showDelete, setShowDelete] = useState(false)
@@ -32,7 +35,9 @@ export default function TaskCard({ task, onEdit, isOverdue }: Props) {
   return (
     <>
       <div
-        className={`group relative glass-card rounded-2xl p-4 transition-all duration-300 hover:scale-[1.01] ${isOverdue && !isDone ? 'shadow-glow-rose' : priorityGlow[task.priority] || 'shadow-soft'}`}
+        className={`group relative glass-card rounded-2xl p-4 transition-all duration-300 hover:scale-[1.01] ${
+          isSelected ? 'ring-2 ring-indigo-400/50 bg-indigo-500/5' : ''
+        } ${isOverdue && !isDone ? 'shadow-glow-rose' : priorityGlow[task.priority] || 'shadow-soft'}`}
         style={{
           borderLeft: isOverdue && !isDone
             ? '3px solid rgba(244,63,94,0.6)'
@@ -64,15 +69,26 @@ export default function TaskCard({ task, onEdit, isOverdue }: Props) {
         </div>
 
         <div className="flex items-start gap-3">
-          {/* 复选框 */}
-          <label className="flex items-center pt-0.5 cursor-pointer">
-            <input
-              type="checkbox"
-              checked={isDone}
-              onChange={() => toggleTask(task.id)}
-              className="w-4.5 h-4.5 rounded-lg border-slate-300/50 text-indigo-600 focus:ring-indigo-500/30 cursor-pointer accent-indigo-500"
-            />
-          </label>
+          {/* 左侧：批量选择 or 完成复选框 */}
+          {batchMode ? (
+            <label className="flex items-center pt-0.5 cursor-pointer">
+              <input
+                type="checkbox"
+                checked={isSelected}
+                onChange={() => onToggleSelect?.(task.id)}
+                className="w-4.5 h-4.5 rounded-lg border-slate-300/50 text-indigo-600 focus:ring-indigo-500/30 cursor-pointer accent-indigo-500"
+              />
+            </label>
+          ) : (
+            <label className="flex items-center pt-0.5 cursor-pointer">
+              <input
+                type="checkbox"
+                checked={isDone}
+                onChange={() => toggleTask(task.id)}
+                className="w-4.5 h-4.5 rounded-lg border-slate-300/50 text-indigo-600 focus:ring-indigo-500/30 cursor-pointer accent-indigo-500"
+              />
+            </label>
+          )}
 
           {/* 任务内容 */}
           <div className="flex-1 min-w-0">
